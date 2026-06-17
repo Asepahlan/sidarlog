@@ -13,7 +13,7 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Selamat Datang di SIDARLOG v2.0</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Selamat Datang di SIDARLOG</h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">Status logistik dan operasional inventaris hari ini, {{ now()->translatedFormat('d F Y') }}.</p>
         </div>
         <div class="flex items-center space-x-3">
@@ -33,35 +33,42 @@
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="group bg-white dark:bg-navy-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300">
+        <!-- Total Barang -->
+        <div class="dashboard-card p-6">
             <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-boxes-stacked text-xl"></i></div>
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center transition-transform hover:scale-105"><i class="fas fa-boxes-stacked text-xl"></i></div>
             </div>
-            <p class="text-sm text-gray-500 font-medium">Total Master Barang</p>
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mt-1" x-text="stats.total_barang">{{ $stats['total_barang'] }}</h2>
+            <p class="text-sm text-slate-500 font-medium">Total Barang</p>
+            <h2 class="text-3xl font-bold text-slate-800 mt-1" x-text="stats.total_barang">{{ $stats['total_barang'] }}</h2>
         </div>
-        <div class="group bg-white dark:bg-navy-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300">
+
+        <!-- Total Gudang -->
+        <div class="dashboard-card p-6">
             <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-user-group text-xl"></i></div>
+                <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center transition-transform hover:scale-105"><i class="fas fa-warehouse text-xl"></i></div>
             </div>
-            <p class="text-sm text-gray-500 font-medium">Total Pegawai / User</p>
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mt-1" x-text="stats.total_pegawai">{{ $stats['total_pegawai'] }}</h2>
+            <p class="text-sm text-slate-500 font-medium">Total Gudang</p>
+            <h2 class="text-3xl font-bold text-slate-800 mt-1" x-text="stats.total_gudang">{{ $stats['total_gudang'] }}</h2>
         </div>
-        <div class="group bg-white dark:bg-navy-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300">
+
+        <!-- Barang Kadaluarsa -->
+        <div class="dashboard-card p-6">
             <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-triangle-exclamation text-xl"></i></div>
-                <span class="flex items-center text-red-500 text-xs font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg animate-pulse" x-show="stats.stok_menipis > 0">Warning</span>
+                <div class="w-12 h-12 bg-yellow-50 text-yellow-500 rounded-xl flex items-center justify-center transition-transform hover:scale-105"><i class="fas fa-hourglass-end text-xl"></i></div>
+                <span class="flex items-center text-yellow-600 text-xs font-bold bg-yellow-50 px-2 py-1 rounded-lg animate-pulse" x-show="stats.barang_expired > 0">Kadaluarsa</span>
             </div>
-            <p class="text-sm text-gray-500 font-medium">Barang Stok Rendah</p>
-            <h2 class="text-3xl font-bold text-orange-600 mt-1" x-text="stats.stok_menipis">{{ $stats['stok_menipis'] }}</h2>
+            <p class="text-sm text-slate-500 font-medium">Barang Kadaluarsa</p>
+            <h2 class="text-3xl font-bold text-yellow-600 mt-1" x-text="stats.barang_expired">{{ $stats['barang_expired'] }}</h2>
         </div>
-        <div class="group bg-white dark:bg-navy-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300">
+
+        <!-- Stok Minimum -->
+        <div class="dashboard-card p-6">
             <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-hourglass-end text-xl"></i></div>
-                <span class="flex items-center text-white text-[10px] font-bold bg-red-600 px-2 py-1 rounded-lg" x-show="stats.barang_expired > 0">Critical</span>
+                <div class="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center transition-transform hover:scale-105"><i class="fas fa-triangle-exclamation text-xl"></i></div>
+                <span class="flex items-center text-red-600 text-[10px] font-bold bg-red-50 px-2 py-1 rounded-lg animate-pulse" x-show="stats.stok_menipis > 0">Stok Minim</span>
             </div>
-            <p class="text-sm text-gray-500 font-medium">Barang Kadaluarsa</p>
-            <h2 class="text-3xl font-bold mt-1" :class="stats.barang_expired > 0 ? 'text-red-600' : 'text-gray-900 dark:text-white'" x-text="stats.barang_expired">{{ $stats['barang_expired'] }}</h2>
+            <p class="text-sm text-slate-500 font-medium">Stok Minimum</p>
+            <h2 class="text-3xl font-bold text-red-600 mt-1" x-text="stats.stok_menipis">{{ $stats['stok_menipis'] }}</h2>
         </div>
     </div>
 
@@ -221,22 +228,68 @@
         </div>
 
         <div class="space-y-8">
-            <!-- Health Check -->
+            <!-- Ringkasan Operasional -->
             <div class="bg-white dark:bg-navy-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
-                <h3 class="font-bold text-gray-900 dark:text-white mb-6">Health Check System</h3>
-                <div class="space-y-6">
-                    @foreach([['icon'=>'fa-server','label'=>'Database Sync','val'=>$health['db_sync'],'color'=>'primary'],['icon'=>'fa-microchip','label'=>'Processor Load','val'=>$health['load'],'color'=>'indigo'],['icon'=>'fa-memory','label'=>'Storage Used','val'=>$health['storage'],'color'=>'orange']] as $h)
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="flex items-center text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fas {{ $h['icon'] }} mr-2 text-{{ $h['color'] }}-500"></i> {{ $h['label'] }}</div>
-                            <span class="text-xs font-bold text-{{ $h['color'] }}-500">{{ $h['val'] }}%</span>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-6">Aktivitas & Logistik</h3>
+                <div class="space-y-5">
+                    <!-- Masuk Hari Ini -->
+                    <div class="flex items-center justify-between p-3.5 bg-green-50/50 dark:bg-green-950/20 rounded-2xl border border-green-100/30 dark:border-green-900/30">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 dark:bg-green-905/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-arrow-down-long"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase">Masuk Hari Ini</h4>
+                                <p class="text-xs text-gray-400 mt-0.5">Barang masuk tercatat</p>
+                            </div>
                         </div>
-                        <div class="w-full bg-gray-100 dark:bg-gray-800 h-2 rounded-full overflow-hidden"><div class="bg-{{ $h['color'] }}-500 h-full rounded-full" style="width:{{ $h['val'] }}%"></div></div>
+                        <span class="text-lg font-black text-green-600" x-text="operasional.masuk_hari_ini">{{ $operasional['masuk_hari_ini'] }}</span>
                     </div>
-                    @endforeach
+
+                    <!-- Keluar Hari Ini -->
+                    <div class="flex items-center justify-between p-3.5 bg-red-50/50 dark:bg-red-950/20 rounded-2xl border border-red-100/30 dark:border-red-900/30">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-red-100 dark:bg-red-905/20 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-arrow-up-long"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase">Keluar Hari Ini</h4>
+                                <p class="text-xs text-gray-400 mt-0.5">Barang keluar tercatat</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-black text-red-600" x-text="operasional.keluar_hari_ini">{{ $operasional['keluar_hari_ini'] }}</span>
+                    </div>
+
+                    <!-- Mutasi Hari Ini -->
+                    <div class="flex items-center justify-between p-3.5 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100/30 dark:border-indigo-900/30">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-905/20 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-shuffle"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase">Mutasi Hari Ini</h4>
+                                <p class="text-xs text-gray-400 mt-0.5">Mutasi antar gudang</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-black text-indigo-600" x-text="operasional.mutasi_hari_ini">{{ $operasional['mutasi_hari_ini'] }}</span>
+                    </div>
+
+                    <!-- Opname Bulan Ini -->
+                    <div class="flex items-center justify-between p-3.5 bg-amber-50/50 dark:bg-amber-950/20 rounded-2xl border border-amber-100/30 dark:border-amber-900/30">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-amber-100 dark:bg-amber-905/20 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase">Opname Bulan Ini</h4>
+                                <p class="text-xs text-gray-400 mt-0.5">Audit stok dilakukan</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-black text-amber-600" x-text="operasional.opname_bulan_ini">{{ $operasional['opname_bulan_ini'] }}</span>
+                    </div>
                 </div>
                 @can('system.optimize')
-                <div class="mt-8 pt-8 border-t border-gray-50 dark:border-gray-800">
+                <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
                     <form action="{{ route('dashboard.optimize') }}" method="POST">
                         @csrf
                         <button type="submit" class="w-full py-3 bg-gray-50 dark:bg-navy-800 text-gray-600 dark:text-gray-300 rounded-2xl text-xs font-bold hover:bg-primary-600 hover:text-white transition-all duration-300">Jalankan Maintenance Rutin</button>
@@ -278,6 +331,7 @@ function dashboardRealtime() {
     return {
         isLive: true,
         stats: @json($stats),
+        operasional: @json($operasional),
         lowStockList: @json($lowStockJson),
         expiredList: @json($expiredJson),
         nearExpiryList: @json($nearExpiryJson),
@@ -289,6 +343,7 @@ function dashboardRealtime() {
                 .then(r => r.json())
                 .then(d => {
                     this.stats = d.stats;
+                    this.operasional = d.operasional;
                     this.lowStockList = d.low_stock;
                     this.expiredList = d.expired;
                     this.nearExpiryList = d.near_expiry;

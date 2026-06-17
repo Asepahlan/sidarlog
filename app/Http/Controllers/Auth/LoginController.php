@@ -19,21 +19,38 @@ class LoginController extends Controller
         $request->validate([
             'nip' => 'required|string',
             'password' => 'required|string',
+        ], [
+            'nip.required' => 'NIP wajib diisi.',
+            'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
-        if (Auth::attempt(['nip' => $request->nip, 'password' => $request->password], $request->remember)) {
-            $request->session()->regenerate();
-            
-            // Log last login
-            $user = Auth::user();
-            $user->update(['last_login_at' => now()]);
+        $user = \App\Models\User::withTrashed()->where('nip', $request->nip)->first();
 
-            return redirect()->intended('/dashboard');
+        if (!$user) {
+            throw ValidationException::withMessages([
+                'nip' => ['NIP tidak terdaftar dalam sistem.'],
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'nip' => [__('auth.failed')],
-        ]);
+        if ($user->trashed()) {
+            throw ValidationException::withMessages([
+                'nip' => ['Akun Anda telah dinonaktifkan.'],
+            ]);
+        }
+
+        if (!Auth::attempt(['nip' => $request->nip, 'password' => $request->password], $request->remember)) {
+            throw ValidationException::withMessages([
+                'password' => ['Kata sandi yang Anda masukkan salah.'],
+            ]);
+        }
+
+        $request->session()->regenerate();
+        
+        // Log last login
+        $user = Auth::user();
+        $user->update(['last_login_at' => now()]);
+
+        return redirect()->intended('/dashboard');
     }
 
     public function logout(Request $request)

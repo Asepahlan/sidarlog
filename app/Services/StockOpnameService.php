@@ -36,10 +36,10 @@ class StockOpnameService
     {
         return DB::transaction(function () use ($data) {
             /** @var Item $item */
-            $item = $this->itemRepository->find($data['barang_id']);
+            $item = $this->itemRepository->findWithLock($data['barang_id']);
 
-            // FIX: Use current_stock_kecil (cached column) instead of undefined current_stock
-            $stokSistem = $item->current_stock_kecil;
+            // Menggunakan stok spesifik gudang yang bersangkutan
+            $stokSistem = $item->getStockKecilInWarehouse($data['gudang_id']);
             $stokFisik  = (int) $data['stok_fisik'];
             $selisih    = $stokFisik - $stokSistem;
 
@@ -69,15 +69,11 @@ class StockOpnameService
                 ]);
 
                 // 3. Sync stock cache on the items table
-                $item->stok_saat_ini_kecil = max(0, $stokSistem + $selisih);
+                $item->stok_saat_ini_kecil = max(0, $item->stok_saat_ini_kecil + $selisih);
                 $item->save();
             }
 
-            ActivityLog::log(
-                "Stock Opname: {$item->nama_barang} | Sistem: {$stokSistem} → Fisik: {$stokFisik} | Selisih: {$selisih}",
-                "Inventory",
-                $data
-            );
+            \App\Services\NotificationService::checkAndNotifyForItem($item);
 
             return $opname;
         });

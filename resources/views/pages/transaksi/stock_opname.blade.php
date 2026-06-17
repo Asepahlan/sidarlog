@@ -9,9 +9,17 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Stock Opname</h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">Audit kecocokan stok sistem dengan stok fisik di gudang.</p>
         </div>
-        <button @click="openCreate = true" class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary-500/30">
-            <i class="fas fa-clipboard-check mr-2"></i> Mulai Opname
-        </button>
+        <div class="flex items-center space-x-3">
+            <a href="{{ route('laporan.opname.excel', request()->all()) }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20">
+                <i class="fas fa-file-excel mr-2"></i> Excel
+            </a>
+            <a href="{{ route('laporan.opname.pdf', request()->all()) }}" class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-rose-500/20">
+                <i class="fas fa-file-pdf mr-2"></i> PDF
+            </a>
+            <button @click="openCreate = true" class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary-500/30">
+                <i class="fas fa-clipboard-check mr-2"></i> Mulai Opname
+            </button>
+        </div>
     </div>
 
     @if(session('success'))
@@ -22,6 +30,44 @@
     @endif
 
     <div class="bg-white dark:bg-navy-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <!-- Search & Filter Bar -->
+        <div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-navy-800/20">
+            <form action="{{ route('stock-opname.index') }}" method="GET" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Gudang</label>
+                        <select name="gudang_id" class="w-full px-3 py-2 bg-white dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+                            <option value="">Semua Gudang</option>
+                            @foreach($warehouses as $wh)
+                                <option value="{{ $wh->id }}" {{ request('gudang_id') == $wh->id ? 'selected' : '' }}>{{ $wh->nama_gudang }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Bulan</label>
+                        <input type="month" name="month" value="{{ request('month') }}" class="w-full px-3 py-2 bg-white dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tanggal Mulai</label>
+                        <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full px-3 py-2 bg-white dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tanggal Akhir</label>
+                        <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full px-3 py-2 bg-white dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+                    </div>
+                </div>
+                <div class="flex items-end gap-2 pt-5 md:pt-0">
+                    <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-xs shadow-md transition-all">
+                        Filter
+                    </button>
+                    @if(request()->anyFilled(['gudang_id', 'month', 'start_date', 'end_date']))
+                        <a href="{{ route('stock-opname.index') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition-all">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead class="bg-gray-50 dark:bg-navy-800/50">
@@ -68,6 +114,11 @@
                 </tbody>
             </table>
         </div>
+        @if($opnames->hasPages())
+        <div class="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
+            {{ $opnames->links() }}
+        </div>
+        @endif
     </div>
 
     <!-- Modal Opname -->

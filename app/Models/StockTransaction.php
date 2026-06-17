@@ -13,6 +13,7 @@ class StockTransaction extends Model
         'pengguna_id',
         'pihak_kesatu_id',
         'pihak_kedua_id',
+        'reference_bap_id',
         'jenis',
         'jumlah_barang_kecil',
         'jumlah_barang_besar',
@@ -77,5 +78,10 @@ class StockTransaction extends Model
     public function pihakKedua()
     {
         return $this->secondParty();
+    }
+
+    public function referenceBap()
+    {
+        return $this->belongsTo(ReferenceBap::class, 'reference_bap_id');
     }
 }

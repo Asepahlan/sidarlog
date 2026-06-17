@@ -70,10 +70,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:gudang.view');
     Route::resource('kategori', \App\Http\Controllers\CategoryController::class)
         ->middleware('permission:master.kategori');
-    Route::resource('jenis-barang', \App\Http\Controllers\ItemTypeController::class)
-        ->middleware('permission:master.jenis-barang');
-    Route::resource('klasifikasi-barang', \App\Http\Controllers\ItemClassificationController::class)
-        ->middleware('permission:master.klasifikasi-barang');
     Route::resource('satuan', \App\Http\Controllers\UnitController::class)
         ->middleware('permission:master.satuan');
 
@@ -121,7 +117,17 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:laporan.export');
     Route::get('/laporan/barang/pdf', [\App\Http\Controllers\ReportController::class, 'exportItemsPdf'])->name('laporan.barang.pdf')
         ->middleware('permission:laporan.export');
+    Route::get('/laporan/transaksi/excel', [\App\Http\Controllers\ReportController::class, 'exportTransactionsExcel'])->name('laporan.transaksi.excel')
+        ->middleware('permission:laporan.export');
     Route::get('/laporan/transaksi/pdf', [\App\Http\Controllers\ReportController::class, 'exportTransactionsPdf'])->name('laporan.transaksi.pdf')
+        ->middleware('permission:laporan.export');
+    Route::get('/laporan/opname/excel', [\App\Http\Controllers\ReportController::class, 'exportOpnameExcel'])->name('laporan.opname.excel')
+        ->middleware('permission:laporan.export');
+    Route::get('/laporan/opname/pdf', [\App\Http\Controllers\ReportController::class, 'exportOpnamePdf'])->name('laporan.opname.pdf')
+        ->middleware('permission:laporan.export');
+    Route::get('/laporan/mutasi/excel', [\App\Http\Controllers\ReportController::class, 'exportMutasiExcel'])->name('laporan.mutasi.excel')
+        ->middleware('permission:laporan.export');
+    Route::get('/laporan/mutasi/pdf', [\App\Http\Controllers\ReportController::class, 'exportMutasiPdf'])->name('laporan.mutasi.pdf')
         ->middleware('permission:laporan.export');
 
     // ── SISTEM: USER & ROLE MANAGEMENT ──────────────────────────────

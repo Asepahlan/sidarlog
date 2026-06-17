@@ -22,17 +22,18 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-        $items = $this->itemService->getAllItems($perPage);
-        return view('pages.barang.index', compact('items'));
+        $search = $request->input('search');
+        $kategoriId = $request->input('kategori_id');
+
+        $items = $this->itemService->getAllItems($perPage, $search, $kategoriId);
+        $categories = Category::latest()->get();
+
+        return view('pages.barang.index', compact('items', 'categories', 'search', 'kategoriId'));
     }
 
     public function create()
     {
-        $categories    = Category::latest()->get();
-        $units         = Unit::latest()->get();
-        $locations     = ItemLocation::latest()->get();
-        $budgetSources = BudgetSource::latest()->get();
-        return view('pages.barang.create', compact('categories', 'units', 'locations', 'budgetSources'));
+        return redirect()->route('barang.index');
     }
 
     public function store(Request $request)
@@ -71,12 +72,7 @@ class ItemController extends Controller
 
     public function edit($id)
     {
-        $item          = $this->itemService->getItemById($id);
-        $categories    = Category::latest()->get();
-        $units         = Unit::latest()->get();
-        $locations     = ItemLocation::latest()->get();
-        $budgetSources = BudgetSource::latest()->get();
-        return view('pages.barang.edit', compact('item', 'categories', 'units', 'locations', 'budgetSources'));
+        return redirect()->route('barang.index');
     }
 
     public function update(Request $request, $id)

@@ -31,8 +31,6 @@ class PermissionSeeder extends Seeder
             'master.satuan',
             'master.lokasi',
             'master.sumber-anggaran',
-            'master.jenis-barang',
-            'master.klasifikasi-barang',
             'master.pihak-kesatu',
             'master.pihak-kedua',
             'master.bap',
@@ -92,7 +90,6 @@ class PermissionSeeder extends Seeder
             'barang.view', 'barang.create', 'barang.edit', 'barang.delete', 'barang.restore',
             // Master data full
             'master.kategori', 'master.satuan', 'master.lokasi', 'master.sumber-anggaran',
-            'master.jenis-barang', 'master.klasifikasi-barang',
             'master.pihak-kesatu', 'master.pihak-kedua', 'master.bap',
             // Gudang full
             'gudang.view', 'gudang.manage',

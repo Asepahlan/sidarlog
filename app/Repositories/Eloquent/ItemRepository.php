@@ -32,17 +32,24 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
         return $this->model->with(self::DEFAULT_RELATIONS)->get();
     }
 
-    /**
-     * Override: paginated items with default eager-loaded relations.
-     */
-    public function paginate(int $perPage = 15, array $relations = [])
+    public function paginate(int $perPage = 15, array $relations = [], $search = null, $kategoriId = null)
     {
         $relations = empty($relations) ? self::DEFAULT_RELATIONS : $relations;
 
-        return $this->model
-            ->with($relations)
-            ->latest()
-            ->paginate($perPage);
+        $query = $this->model->with($relations);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                  ->orWhere('kode_barang', 'like', "%{$search}%");
+            });
+        }
+
+        if (!empty($kategoriId)) {
+            $query->where('kategori_id', $kategoriId);
+        }
+
+        return $query->latest()->paginate($perPage);
     }
 
     /**
@@ -62,6 +69,17 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
             ->with(self::DEFAULT_RELATIONS)
             ->where('kode_barang', $code)
             ->first();
+    }
+
+    /**
+     * Find item by ID with row locking enabled.
+     */
+    public function findWithLock($id)
+    {
+        return $this->model
+            ->with(self::DEFAULT_RELATIONS)
+            ->lockForUpdate()
+            ->findOrFail($id);
     }
 
     /**

@@ -60,7 +60,10 @@
         <!-- Title -->
         <div class="title-box">
             <h3>Berita Acara Serah Terima Barang</h3>
-            <p>Nomor: {{ $transaction->no_referensi }}</p>
+            <p>Nomor: {{ $transaction->referenceBap?->nomor_ba ?? $transaction->no_referensi }}</p>
+            @if($transaction->referenceBap)
+                <p style="font-size: 10pt; margin-top: 2px;">Referensi BAP: {{ $transaction->referenceBap->judul_ba }} ({{ \Carbon\Carbon::parse($transaction->referenceBap->tgl_ba)->format('d/m/Y') }})</p>
+            @endif
         </div>
 
         <!-- Opening -->

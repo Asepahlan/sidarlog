@@ -9,12 +9,14 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $notifications = Auth::user()
-            ->unreadNotifications()
+        $unreadQuery = Auth::user()->unreadNotifications();
+        $totalUnread = $unreadQuery->count();
+        $notifications = $unreadQuery
             ->latest()
             ->take(15)
             ->get();
-        return response()->json($notifications);
+        return response()->json($notifications)
+            ->header('X-Unread-Count', $totalUnread);
     }
 
     public function markAsRead($id)

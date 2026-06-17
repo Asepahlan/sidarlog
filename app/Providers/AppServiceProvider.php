@@ -24,5 +24,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, $ability) {
             return $user->hasRole('super_admin') ? true : null;
         });
+
+        // Register Observers for automatic Activity Log
+        \App\Models\Item::observe(\App\Observers\ItemObserver::class);
+        \App\Models\StockTransaction::observe(\App\Observers\StockTransactionObserver::class);
+        \App\Models\StockOpname::observe(\App\Observers\StockOpnameObserver::class);
+        \App\Models\StockMutation::observe(\App\Observers\StockMutationObserver::class);
     }
 }

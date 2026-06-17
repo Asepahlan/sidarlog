@@ -12,12 +12,41 @@ use Illuminate\Support\Facades\DB;
 
 class StockMutationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $mutations = StockMutation::with(['barang', 'gudangAsal', 'gudangTujuan', 'pembuat'])
-            ->latest()
-            ->paginate(15);
-        return view('pages.gudang.mutasi', compact('mutations'));
+        $query = StockMutation::with(['barang', 'gudangAsal', 'gudangTujuan', 'pembuat']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('no_mutasi', 'like', '%' . $search . '%')
+                  ->orWhereHas('barang', function ($itemQuery) use ($search) {
+                      $itemQuery->where('nama_barang', 'like', '%' . $search . '%')
+                                ->orWhere('kode_barang', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        if ($request->filled('gudang_asal_id')) {
+            $query->where('gudang_asal_id', $request->gudang_asal_id);
+        }
+
+        if ($request->filled('gudang_tujuan_id')) {
+            $query->where('gudang_tujuan_id', $request->gudang_tujuan_id);
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('tgl_mutasi', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('tgl_mutasi', '<=', $request->end_date);
+        }
+
+        $mutations = $query->latest()->paginate(15);
+        $warehouses = Warehouse::all();
+
+        return view('pages.gudang.mutasi', compact('mutations', 'warehouses'));
     }
 
     public function create()
@@ -37,15 +66,16 @@ class StockMutationController extends Controller
             'tgl_mutasi'        => 'required|date',
         ]);
 
-        $item = Item::findOrFail($request->barang_id);
-        $stockKecilDiGudangAsal = $item->getStockKecilInWarehouse($request->gudang_asal_id);
-
-        if ($request->jumlah_barang_kecil > $stockKecilDiGudangAsal) {
-            return redirect()->back()->withInput()->with('error', "Stok barang di gudang asal tidak mencukupi. Sisa stok: {$stockKecilDiGudangAsal}");
-        }
-
         DB::beginTransaction();
         try {
+            $item = Item::lockForUpdate()->findOrFail($request->barang_id);
+            $stockKecilDiGudangAsal = $item->getStockKecilInWarehouse($request->gudang_asal_id);
+
+            if ($request->jumlah_barang_kecil > $stockKecilDiGudangAsal) {
+                DB::rollBack();
+                return redirect()->back()->withInput()->with('error', "Stok barang di gudang asal tidak mencukupi. Sisa stok: {$stockKecilDiGudangAsal}");
+            }
+
             $noMutasi = 'MUT-' . date('Ymd') . '-' . str_pad(StockMutation::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
 
             $mutation = StockMutation::create([
@@ -86,13 +116,8 @@ class StockMutationController extends Controller
                 'tgl_transaksi'    => $request->tgl_mutasi,
             ]);
 
-            ActivityLog::log(
-                "Mutasi stok {$request->jumlah_barang_kecil} unit barang ID#{$request->barang_id} dari gudang #{$request->gudang_asal_id} ke #{$request->gudang_tujuan_id}",
-                "Mutasi Gudang",
-                $request->all()
-            );
-
             DB::commit();
+            \App\Services\NotificationService::checkAndNotifyForItem($item);
             return redirect()->route('mutasi-gudang.index')->with('success', "Mutasi gudang {$noMutasi} berhasil dicatat!");
         } catch (\Exception $e) {
             DB::rollBack();
@@ -100,11 +125,63 @@ class StockMutationController extends Controller
         }
     }
 
+    /**
+     * Batalkan mutasi: hapus transaksi IN/OUT terkait, rollback stok, dan catat log.
+     * Menggunakan DB::transaction + lockForUpdate untuk keamanan concurrency.
+     */
     public function destroy($id)
     {
-        $mutation = StockMutation::findOrFail($id);
-        ActivityLog::log("Menghapus Mutasi: {$mutation->no_mutasi}", "Mutasi Gudang");
-        $mutation->delete();
-        return redirect()->back()->with('success', 'Data mutasi berhasil dihapus');
+        try {
+            DB::transaction(function () use ($id) {
+                /** @var StockMutation $mutation */
+                $mutation = StockMutation::lockForUpdate()->findOrFail($id);
+
+                /** @var Item $item */
+                $item = Item::lockForUpdate()->findOrFail($mutation->barang_id);
+
+                $jumlah = (int) $mutation->jumlah_barang_kecil;
+
+                // Verifikasi stok gudang tujuan mencukupi untuk rollback
+                $stokDiTujuan = $item->getStockKecilInWarehouse($mutation->gudang_tujuan_id);
+                if ($stokDiTujuan < $jumlah) {
+                    throw new \Exception(
+                        "Tidak dapat membatalkan mutasi. Stok di gudang tujuan ({$stokDiTujuan}) " .
+                        "tidak mencukupi untuk dikembalikan ({$jumlah})."
+                    );
+                }
+
+                // Hapus transaksi keluar (dari gudang asal) → stok asal otomatis kembali
+                $txOut = StockTransaction::where('no_referensi', $mutation->no_mutasi . '-OUT')->first();
+                if ($txOut) {
+                    // Rollback: tambahkan kembali ke stok global (karena transaksi OUT sudah dikurangi)
+                    $item->stok_saat_ini_kecil += (int) $txOut->jumlah_barang_kecil;
+                    $txOut->delete();
+                }
+
+                // Hapus transaksi masuk (ke gudang tujuan) → stok tujuan dikurangi
+                $txIn = StockTransaction::where('no_referensi', $mutation->no_mutasi . '-IN')->first();
+                if ($txIn) {
+                    // Rollback: kurangi dari stok global (karena transaksi IN sudah menambah)
+                    $item->stok_saat_ini_kecil = max(0, $item->stok_saat_ini_kecil - (int) $txIn->jumlah_barang_kecil);
+                    $txIn->delete();
+                }
+
+                $item->save();
+                \App\Services\NotificationService::checkAndNotifyForItem($item);
+
+                // Log sebelum hapus (Observer akan mencatat juga)
+                ActivityLog::log(
+                    "Membatalkan Mutasi: {$mutation->no_mutasi} | Barang: {$item->nama_barang} | {$jumlah} unit dari gudang #{$mutation->gudang_asal_id} ke #{$mutation->gudang_tujuan_id}",
+                    "Mutasi Gudang"
+                );
+
+                $mutation->delete();
+            });
+
+            return redirect()->back()->with('success', 'Mutasi berhasil dibatalkan dan stok telah disesuaikan.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal membatalkan mutasi: ' . $e->getMessage());
+        }
     }
 }

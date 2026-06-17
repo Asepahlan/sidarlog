@@ -34,27 +34,27 @@ class TransactionService
             $data['jumlah_barang_besar']  = (int) ($data['jumlah_barang_besar'] ?? 0);
 
             /** @var Item $item */
-            $item = $this->itemRepository->find($data['barang_id']);
+            $item = $this->itemRepository->findWithLock($data['barang_id']);
 
             if ($type === 'keluar') {
-                // Validate stock is sufficient using cached columns (fast, no N+1)
-                $stokKecilTersedia = $item->stok_saat_ini_kecil;
-                $stokBesarTersedia = $item->stok_saat_ini_besar;
+                // Validate stock is sufficient in chosen warehouse
+                $stokKecilTersedia = $item->getStockKecilInWarehouse($data['gudang_id']);
+                $stokBesarTersedia = $item->getStockBesarInWarehouse($data['gudang_id']);
 
                 if ($data['jumlah_barang_kecil'] > 0 && $stokKecilTersedia < $data['jumlah_barang_kecil']) {
                     throw ValidationException::withMessages([
-                        'jumlah_barang_kecil' => "Stok tidak mencukupi. Stok Kecil tersedia: {$stokKecilTersedia}.",
+                        'jumlah_barang_kecil' => "Stok tidak mencukupi di gudang terpilih. Stok Kecil tersedia: {$stokKecilTersedia}.",
                     ]);
                 }
                 if ($data['jumlah_barang_besar'] > 0 && $stokBesarTersedia < $data['jumlah_barang_besar']) {
                     throw ValidationException::withMessages([
-                        'jumlah_barang_besar' => "Stok tidak mencukupi. Stok Besar tersedia: {$stokBesarTersedia}.",
+                        'jumlah_barang_besar' => "Stok tidak mencukupi di gudang terpilih. Stok Besar tersedia: {$stokBesarTersedia}.",
                     ]);
                 }
 
-                // Deduct from stock cache
-                $item->stok_saat_ini_kecil = max(0, $stokKecilTersedia - $data['jumlah_barang_kecil']);
-                $item->stok_saat_ini_besar = max(0, $stokBesarTersedia - $data['jumlah_barang_besar']);
+                // Deduct from stock cache (using global current stock values)
+                $item->stok_saat_ini_kecil = max(0, $item->stok_saat_ini_kecil - $data['jumlah_barang_kecil']);
+                $item->stok_saat_ini_besar = max(0, $item->stok_saat_ini_besar - $data['jumlah_barang_besar']);
                 $item->save();
 
             } elseif ($type === 'masuk') {
@@ -64,13 +64,9 @@ class TransactionService
                 $item->save();
             }
 
-            $tx = $this->transactionRepository->create($data);
+            \App\Services\NotificationService::checkAndNotifyForItem($item);
 
-            ActivityLog::log(
-                "Transaksi {$tx->jenis}: {$item->nama_barang} | Kecil: {$data['jumlah_barang_kecil']} | Besar: {$data['jumlah_barang_besar']}",
-                "Inventory",
-                $data
-            );
+            $tx = $this->transactionRepository->create($data);
 
             return $tx;
         });

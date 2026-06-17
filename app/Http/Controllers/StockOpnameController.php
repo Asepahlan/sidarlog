@@ -16,10 +16,32 @@ class StockOpnameController extends Controller
         $this->opnameService = $opnameService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $opnames = $this->opnameService->getAllOpnames();
-        return view('pages.transaksi.stock_opname', compact('opnames'));
+        $query = \App\Models\StockOpname::with(['barang', 'gudang', 'pengguna']);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        if ($request->filled('month')) {
+            $date = \Carbon\Carbon::parse($request->month);
+            $query->whereMonth('created_at', $date->month)
+                  ->whereYear('created_at', $date->year);
+        }
+
+        if ($request->filled('gudang_id')) {
+            $query->where('gudang_id', $request->gudang_id);
+        }
+
+        $opnames = $query->latest()->paginate(15);
+        $warehouses = \App\Models\Warehouse::all();
+
+        return view('pages.transaksi.stock_opname', compact('opnames', 'warehouses'));
     }
 
     public function store(Request $request)

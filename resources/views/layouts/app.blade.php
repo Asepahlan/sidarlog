@@ -18,20 +18,20 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7', // SIDARLOG Blue
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316', // BPBD Orange Primary
+                            600: '#ea580c', // Hover state
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
                         },
                         navy: {
                             800: '#1e293b',
-                            900: '#0f172a', // Dark Navy
+                            900: '#0f172a',
                             950: '#020617',
                         }
                     }
@@ -50,17 +50,233 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #F8FAFC !important; 
+            color: #1E293B !important; 
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        .dark body {
+            background-color: #0F172A !important;
+            color: #F8FAFC !important;
+        }
+
         [x-cloak] { display: none !important; }
+        
+        /* Modern Scrollbar */
         .sidebar-scroll::-webkit-scrollbar { width: 4px; }
-        .sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        
+        .dark .sidebar-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* Form styling rules */
+        input[type="text"]:not(.bg-transparent), input[type="email"], input[type="password"], input[type="number"], input[type="date"], select:not(.bg-transparent), textarea {
+            height: 44px !important;
+            border-radius: 8px !important;
+            border: 1px solid #CBD5E1 !important;
+            background-color: #FFFFFF !important;
+            color: #1E293B !important;
+            font-size: 0.875rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            transition: all 0.2s ease-in-out !important;
+        }
+        textarea {
+            height: auto !important;
+            min-height: 100px !important;
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #F97316 !important;
+            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.15) !important;
+            outline: none !important;
+        }
+        
+        /* Dark Mode Forms */
+        .dark input[type="text"]:not(.bg-transparent), .dark input[type="email"], .dark input[type="password"], .dark input[type="number"], .dark input[type="date"], .dark select:not(.bg-transparent), .dark textarea {
+            border-color: #334155 !important;
+            background-color: #1E293B !important;
+            color: #F8FAFC !important;
+        }
+        
+        .dark input:focus, .dark select:focus, .dark textarea:focus {
+            border-color: #FB923C !important;
+            box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.2) !important;
+        }
+
+        /* Buttons styling rules */
+        .btn-primary, button[type="submit"]:not(.btn-secondary):not(.btn-danger):not(.btn-success) {
+            background-color: #F97316 !important;
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            height: 44px !important;
+            padding: 0 1.5rem !important;
+            transition: all 0.2s !important;
+        }
+        .btn-primary:hover, button[type="submit"]:not(.btn-secondary):not(.btn-danger):not(.btn-success):hover {
+            background-color: #EA580C !important;
+        }
+        
+        /* Dark Mode Primary Buttons */
+        .dark .btn-primary, .dark button[type="submit"]:not(.btn-secondary):not(.btn-danger):not(.btn-success) {
+            background-color: #FB923C !important;
+            color: #0F172A !important;
+        }
+        .dark .btn-primary:hover, .dark button[type="submit"]:not(.btn-secondary):not(.btn-danger):not(.btn-success):hover {
+            background-color: #EA580C !important;
+            color: #FFFFFF !important;
+        }
+
+        .btn-secondary {
+            background-color: #F1F5F9 !important;
+            color: #334155 !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            height: 44px !important;
+            padding: 0 1.5rem !important;
+            transition: all 0.2s !important;
+        }
+        .btn-secondary:hover {
+            background-color: #E2E8F0 !important;
+        }
+        
+        /* Dark Mode Secondary Buttons */
+        .dark .btn-secondary {
+            background-color: #334155 !important;
+            color: #CBD5E1 !important;
+        }
+        .dark .btn-secondary:hover {
+            background-color: #475569 !important;
+            color: #F8FAFC !important;
+        }
+
+        .btn-danger {
+            background-color: #EF4444 !important;
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            height: 44px !important;
+            padding: 0 1.5rem !important;
+            transition: all 0.2s !important;
+        }
+        .btn-danger:hover {
+            background-color: #DC2626 !important;
+        }
+
+        /* Table design system rules */
+        table thead {
+            background-color: #F8FAFC !important;
+        }
+        .dark table thead {
+            background-color: #1E293B !important;
+        }
+        
+        table thead th {
+            color: #64748B !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            font-size: 0.75rem !important;
+            letter-spacing: 0.05em !important;
+            border-bottom: 1px solid #E2E8F0 !important;
+            padding: 12px 16px !important;
+        }
+        .dark table thead th {
+            color: #CBD5E1 !important;
+            border-bottom: 1px solid #334155 !important;
+        }
+        
+        table tbody tr {
+            transition: all 0.2s !important;
+        }
+        table tbody tr:hover {
+            background-color: #FFF7ED !important;
+        }
+        .dark table tbody tr:hover {
+            background-color: #334155 !important;
+        }
+        
+        table tbody td {
+            padding: 16px !important;
+            color: #1E293B !important;
+            font-size: 0.875rem !important;
+            border-bottom: 1px solid #E2E8F0 !important;
+        }
+        .dark table tbody td {
+            color: #CBD5E1 !important;
+            border-bottom: 1px solid #334155 !important;
+        }
+
+        /* Cards styles */
+        .dashboard-card, .card-custom, div.rounded-3xl, form.rounded-3xl, div.rounded-2xl:not([role="dialog"]):not(aside):not(header) {
+            background-color: #FFFFFF !important;
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .dark .dashboard-card, .dark .card-custom, .dark div.rounded-3xl, .dark form.rounded-3xl, .dark div.rounded-2xl:not([role="dialog"]):not(aside):not(header) {
+            background-color: #1E293B !important;
+            border: 1px solid #334155 !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .dashboard-card:hover, .card-custom:hover, div.rounded-3xl:hover, form.rounded-3xl:hover, div.rounded-2xl:not([role="dialog"]):not(aside):not(header):hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
+        }
+        
+        .dark .dashboard-card:hover, .dark .card-custom:hover, .dark div.rounded-3xl:hover, .dark form.rounded-3xl:hover, .dark div.rounded-2xl:not([role="dialog"]):not(aside):not(header):hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        /* Global Text Contrast & Background Overrides for Dark Mode */
+        .dark .text-slate-800, .dark .text-gray-900, .dark .text-slate-900 {
+            color: #F8FAFC !important;
+        }
+        .dark .text-slate-500, .dark .text-gray-500, .dark .text-slate-600, .dark .text-gray-600 {
+            color: #CBD5E1 !important;
+        }
+        
+        .dark .bg-white, .dark .bg-gray-800, .dark .bg-navy-900 {
+            background-color: #1E293B !important;
+        }
+        .dark .bg-gray-50, .dark .bg-slate-50, .dark .bg-navy-950 {
+            background-color: #0F172A !important;
+        }
+        .dark .border-\[\#E2E8F0\], .dark .border-gray-100, .dark .border-gray-200, .dark .border-slate-200, .dark .border-gray-700, .dark .border-gray-800 {
+            border-color: #334155 !important;
+        }
+        
+        /* Dashboard Card Stats Overrides in Dark Mode */
+        .dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15) !important; color: #60A5FA !important; }
+        .dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.15) !important; color: #4ADE80 !important; }
+        .dark .bg-yellow-50 { background-color: rgba(234, 179, 8, 0.15) !important; color: #FACC15 !important; }
+        .dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15) !important; color: #F87171 !important; }
+        
+        .dark .text-blue-600 { color: #60A5FA !important; }
+        .dark .text-green-600 { color: #4ADE80 !important; }
+        .dark .text-yellow-600, .dark .text-yellow-500 { color: #FACC15 !important; }
+        .dark .text-red-600 { color: #F87171 !important; }
+        
+        .dark .bg-orange-50\/50 { background-color: rgba(249, 115, 22, 0.1) !important; }
+        .dark .bg-red-50\/50 { background-color: rgba(239, 68, 68, 0.1) !important; }
     </style>
 </head>
-<body class="h-full overflow-hidden bg-gray-50 dark:bg-gray-950" 
+<body class="h-full overflow-hidden bg-[#F8FAFC]" 
       x-data="{ 
         sidebarOpen: false, 
         sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
-        darkMode: localStorage.getItem('darkMode') === 'true',
+        darkMode: (function() {
+            if (localStorage.getItem('theme_initialized') !== 'true') {
+                localStorage.setItem('theme_initialized', 'true');
+                localStorage.setItem('darkMode', 'false');
+                return false;
+            }
+            return localStorage.getItem('darkMode') === 'true';
+        })(),
         confirmDelete: {
             open: false,
             title: 'Hapus Data?',
@@ -80,26 +296,41 @@
         }
       }" 
       :class="{ 'dark': darkMode }" 
-      x-init="$watch('sidebarCollapsed', val => localStorage.setItem('sidebarCollapsed', val))">
+      x-init="
+        $watch('sidebarCollapsed', val => localStorage.setItem('sidebarCollapsed', val)); 
+        $watch('darkMode', val => {
+            localStorage.setItem('darkMode', val);
+            if (val) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+      ">
     
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar -->
         <aside 
             :class="sidebarCollapsed ? 'w-20' : 'w-72'"
-            class="hidden md:flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out bg-navy-950 text-gray-300 border-r border-gray-800"
+            class="hidden md:flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out bg-white text-slate-600 border-r border-[#E2E8F0]"
         >
             <!-- Sidebar Header -->
-            <div class="flex items-center h-16 px-6 bg-navy-950 border-b border-gray-800 overflow-hidden shrink-0">
+            <div class="flex items-center h-16 px-6 bg-white border-b border-[#E2E8F0] overflow-hidden shrink-0">
                 <div class="flex items-center min-w-max">
-                    <div class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 overflow-hidden">
+                    <div class="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 overflow-hidden">
                         @if(\App\Models\Setting::get('app_logo'))
                             <img src="{{ asset(\App\Models\Setting::get('app_logo')) }}" class="max-h-full max-w-full">
                         @else
                             <i class="fas fa-boxes-stacked text-white text-xl"></i>
                         @endif
                     </div>
-                    <span class="ml-4 text-white font-bold text-xl tracking-wider transition-opacity duration-300" 
+                    <span class="ml-4 text-slate-800 font-bold text-xl tracking-wider transition-opacity duration-300" 
                           :class="sidebarCollapsed ? 'opacity-0 invisible' : 'opacity-100 visible'">
                         {{ \App\Models\Setting::get('app_name', 'SIDARLOG') }}
                     </span>
@@ -123,8 +354,11 @@
                     <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[2px] mb-3" :class="sidebarCollapsed ? 'hidden' : 'block'">Master Data</p>
                     
                     @can('barang.view')
-                    <x-sidebar-dropdown title="Barang" icon="fas fa-box" :active="request()->is('barang') || request()->is('barang/*') || request()->is('lokasi-barang*') || request()->is('satuan*') || request()->is('sumber-anggaran*') || request()->is('pihak-kesatu*') || request()->is('pihak-kedua*') || request()->is('bap*')">
+                    <x-sidebar-dropdown title="Barang" icon="fas fa-box" :active="request()->is('barang') || request()->is('barang/*') || request()->is('kategori*') || request()->is('lokasi-barang*') || request()->is('satuan*') || request()->is('sumber-anggaran*') || request()->is('pihak-kesatu*') || request()->is('pihak-kedua*') || request()->is('bap*')">
                         <x-sidebar-submenu-item title="Data Barang" href="/barang" :active="request()->is('barang') || request()->is('barang/*')" />
+                        @can('master.kategori')
+                        <x-sidebar-submenu-item title="Kategori Barang" href="/kategori" :active="request()->is('kategori*')" />
+                        @endcan
                         @can('master.lokasi')
                         <x-sidebar-submenu-item title="Data Lokasi Barang" href="/lokasi-barang" :active="request()->is('lokasi-barang*')" />
                         @endcan
@@ -153,20 +387,6 @@
                         @endcan
                         @can('mutasi.view')
                         <x-sidebar-submenu-item title="Mutasi Gudang" href="/mutasi-gudang" :active="request()->is('mutasi-gudang*')" />
-                        @endcan
-                    </x-sidebar-dropdown>
-                    @endcanany
-
-                    @canany(['master.kategori', 'master.jenis-barang', 'master.klasifikasi-barang'])
-                    <x-sidebar-dropdown title="Kategori" icon="fas fa-tags" :active="request()->is('kategori*') || request()->is('jenis-barang*') || request()->is('klasifikasi-barang*')">
-                        @can('master.kategori')
-                        <x-sidebar-submenu-item title="Kategori Barang" href="/kategori" :active="request()->is('kategori*')" />
-                        @endcan
-                        @can('master.jenis-barang')
-                        <x-sidebar-submenu-item title="Jenis Barang" href="/jenis-barang" :active="request()->is('jenis-barang*')" />
-                        @endcan
-                        @can('master.klasifikasi-barang')
-                        <x-sidebar-submenu-item title="Klasifikasi Barang" href="/klasifikasi-barang" :active="request()->is('klasifikasi-barang*')" />
                         @endcan
                     </x-sidebar-dropdown>
                     @endcanany
@@ -249,10 +469,10 @@
             </div>
 
             <!-- Sidebar Footer -->
-            <div class="p-4 border-t border-gray-800 shrink-0">
+            <div class="p-4 border-t border-[#E2E8F0] shrink-0">
                 <button @click="sidebarCollapsed = !sidebarCollapsed" 
-                        class="flex items-center w-full px-4 py-2.5 text-sm font-medium text-gray-400 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200">
-                    <i :class="sidebarCollapsed ? 'fas fa-indent' : 'fas fa-outdent'" class="w-5 h-5 mr-3 flex items-center justify-center text-gray-500"></i>
+                        class="flex items-center w-full px-4 py-2.5 text-sm font-medium text-slate-500 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-all duration-200">
+                    <i :class="sidebarCollapsed ? 'fas fa-indent' : 'fas fa-outdent'" class="w-5 h-5 mr-3 flex items-center justify-center text-slate-400"></i>
                     <span :class="sidebarCollapsed ? 'hidden' : 'block'">Collapse Sidebar</span>
                 </button>
             </div>
@@ -262,7 +482,7 @@
         <div class="flex flex-col flex-1 overflow-hidden">
             
             <!-- Navbar -->
-            <header class="h-16 flex items-center justify-between px-8 bg-white dark:bg-navy-900 border-b border-gray-200 dark:border-gray-800 shrink-0 shadow-sm z-10">
+            <header class="h-16 flex items-center justify-between px-8 bg-white border-b border-[#E2E8F0] shrink-0 shadow-sm z-10">
                 <div class="flex items-center">
                     <button @click="sidebarOpen = true" class="md:hidden text-gray-500 mr-4">
                         <i class="fas fa-bars text-xl"></i>
@@ -289,10 +509,13 @@
                     <div class="relative" x-data="{ 
                         open: false, 
                         notifications: [], 
-                        get unreadCount() { return this.notifications.length },
+                        unreadCount: 0,
                         fetchNotifications() {
                             fetch('/notifications')
-                                .then(res => res.json())
+                                .then(res => {
+                                    this.unreadCount = parseInt(res.headers.get('X-Unread-Count') || 0);
+                                    return res.json();
+                                })
                                 .then(data => this.notifications = data);
                         },
                         markAsRead(id) {

@@ -10,6 +10,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\StockTransaction;
+use App\Models\StockMutation;
+use App\Models\StockOpname;
+
 class DashboardController extends Controller
 {
     protected $itemRepository;
@@ -29,7 +33,7 @@ class DashboardController extends Controller
 
         $stats = [
             'total_barang'   => Item::count(),
-            'total_pegawai'  => User::count(),
+            'total_gudang'   => \App\Models\Warehouse::count(),
             'stok_menipis'   => $lowStockItems->count(),
             'barang_expired' => $expiredItems->count(),
             'near_expiry'    => $nearExpiryItems->count(),
@@ -38,10 +42,11 @@ class DashboardController extends Controller
         $recent_transactions = $this->transactionRepository->getRecent(8);
         $notifications       = Auth::user()->unreadNotifications->take(5);
 
-        $health = [
-            'db_sync' => 99.8,
-            'load'    => rand(15, 30),
-            'storage' => 65.2,
+        $operasional = [
+            'masuk_hari_ini'   => StockTransaction::where('jenis', 'masuk')->whereDate('tgl_transaksi', Carbon::today())->count(),
+            'keluar_hari_ini'  => StockTransaction::where('jenis', 'keluar')->whereDate('tgl_transaksi', Carbon::today())->count(),
+            'mutasi_hari_ini'  => StockMutation::whereDate('created_at', Carbon::today())->count(),
+            'opname_bulan_ini' => StockOpname::whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
         ];
 
         // Pre-map data for Alpine.js (avoids complex inline PHP in Blade)
@@ -83,7 +88,7 @@ class DashboardController extends Controller
             'stats',
             'recent_transactions',
             'notifications',
-            'health',
+            'operasional',
             'lowStockItems',
             'nearExpiryItems',
             'expiredItems',
@@ -105,7 +110,7 @@ class DashboardController extends Controller
         return response()->json([
             'stats' => [
                 'total_barang'   => Item::count(),
-                'total_pegawai'  => User::count(),
+                'total_gudang'   => \App\Models\Warehouse::count(),
                 'stok_menipis'   => $lowStock->count(),
                 'barang_expired' => $expired->count(),
                 'near_expiry'    => $nearExpiry->count(),
@@ -136,6 +141,12 @@ class DashboardController extends Controller
                 'days_left'      => Carbon::today()->diffInDays($item->tgl_kadaluarsa),
             ]),
             'unread_notifications' => Auth::user()->unreadNotifications()->count(),
+            'operasional' => [
+                'masuk_hari_ini'   => StockTransaction::where('jenis', 'masuk')->whereDate('tgl_transaksi', Carbon::today())->count(),
+                'keluar_hari_ini'  => StockTransaction::where('jenis', 'keluar')->whereDate('tgl_transaksi', Carbon::today())->count(),
+                'mutasi_hari_ini'  => StockMutation::whereDate('created_at', Carbon::today())->count(),
+                'opname_bulan_ini' => StockOpname::whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
+            ],
         ]);
     }
 
@@ -154,7 +165,7 @@ class DashboardController extends Controller
     {
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         \Illuminate\Support\Facades\Artisan::call('stock:recalculate');
-        \Illuminate\Support\Facades\Artisan::call('notifications:push', ['--fresh' => true]);
+        \Illuminate\Support\Facades\Artisan::call('notifications:push');
         \App\Models\ActivityLog::log("Optimasi sistem + recalculate stok + push notifikasi", "System");
         return back()->with('success', 'Sistem berhasil dioptimasi dan notifikasi diperbarui.');
     }

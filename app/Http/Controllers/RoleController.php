@@ -16,7 +16,7 @@ class RoleController extends Controller
         $permissionGroups = [
             'Dashboard' => ['dashboard.view'],
             'Master Barang' => ['barang.view', 'barang.create', 'barang.edit', 'barang.delete', 'barang.restore', 'barang.force-delete'],
-            'Master Data Pendukung' => ['master.kategori', 'master.satuan', 'master.lokasi', 'master.sumber-anggaran', 'master.jenis-barang', 'master.klasifikasi-barang', 'master.pihak-kesatu', 'master.pihak-kedua', 'master.bap'],
+            'Master Data Pendukung' => ['master.kategori', 'master.satuan', 'master.lokasi', 'master.sumber-anggaran', 'master.pihak-kesatu', 'master.pihak-kedua', 'master.bap'],
             'Manajemen Gudang' => ['gudang.view', 'gudang.manage'],
             'Mutasi Barang' => ['mutasi.view', 'mutasi.create', 'mutasi.approve'],
             'Transaksi (Masuk/Keluar)' => ['transaksi.masuk.view', 'transaksi.masuk.create', 'transaksi.keluar.view', 'transaksi.keluar.create', 'transaksi.delete'],

@@ -5,6 +5,7 @@ namespace App\Repositories\Interfaces;
 interface ItemRepositoryInterface extends BaseRepositoryInterface
 {
     public function findByCode($code);
+    public function findWithLock($id);
     public function getStockHistory($id);
     public function getLowStock();
     public function getNearExpiry(int $days = 30);

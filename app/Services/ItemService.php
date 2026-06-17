@@ -19,9 +19,9 @@ class ItemService
         return $this->itemRepository->find($id);
     }
 
-    public function getAllItems($perPage = 10)
+    public function getAllItems($perPage = 10, $search = null, $kategoriId = null)
     {
-        return $this->itemRepository->paginate((int) $perPage);
+        return $this->itemRepository->paginate((int) $perPage, [], $search, $kategoriId);
     }
 
     public function createItem(array $data)
@@ -44,21 +44,17 @@ class ItemService
         $data['stok_saat_ini_besar'] = $data['stok_saat_ini_besar'] ?? 0;
 
         $item = $this->itemRepository->create($data);
-        ActivityLog::log("Menambah barang: {$item->nama_barang} (Kode: {$item->kode_barang})", "Master Barang", $data);
         return $item;
     }
 
     public function updateItem($id, array $data)
     {
         $item = $this->itemRepository->update($id, $data);
-        ActivityLog::log("Memperbarui barang: {$item->nama_barang} (Kode: {$item->kode_barang})", "Master Barang", $data);
         return $item;
     }
 
     public function deleteItem($id)
     {
-        $item = $this->itemRepository->find($id);
-        ActivityLog::log("Menghapus barang (Soft Delete): {$item->nama_barang} (Kode: {$item->kode_barang})", "Master Barang");
         return $this->itemRepository->delete($id);
     }
 
@@ -70,13 +66,11 @@ class ItemService
     public function restoreItem($id)
     {
         $item = $this->itemRepository->restore($id);
-        ActivityLog::log("Mengembalikan barang dari Trash: ID #{$id}", "Master Barang");
         return $item;
     }
 
     public function forceDeleteItem($id)
     {
-        ActivityLog::log("Menghapus barang PERMANEN: ID #{$id}", "Master Barang");
         return $this->itemRepository->forceDelete($id);
     }
 }
