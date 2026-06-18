@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 3. Create Inventory Master Data
-        Warehouse::create(['nama_gudang' => 'Gudang Utama', 'lokasi' => 'Lantai 1']);
+        Warehouse::create(['kode_gudang' => 'GD-UTAMA', 'nama_gudang' => 'Gudang Utama', 'lokasi' => 'Lantai 1']);
         Category::create(['nama_kategori' => 'Alat Tulis Kantor']);
         Unit::create(['nama_satuan' => 'Pcs', 'simbol' => 'pcs']);
 
@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'jabatan_id' => $jabatan->id,
             'bidang_id' => $bidang->id,
-            'instansi' => $instansi->nama_instansi,
+            'instansi_opd' => $instansi->nama_instansi,
             'status_pegawai' => 'Aktif',
         ]);
 

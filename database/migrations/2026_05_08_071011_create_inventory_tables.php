@@ -40,12 +40,18 @@ return new class extends Migration
             $table->string('kode_barang')->unique()->index();
             $table->string('nama_barang');
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('unit_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('unit_kecil_id')->constrained('units')->cascadeOnDelete();
+            $table->foreignId('unit_besar_id')->nullable()->constrained('units')->nullOnDelete();
+            $table->decimal('harga_kecil', 15, 2)->nullable();
+            $table->decimal('harga_besar', 15, 2)->nullable();
+            $table->integer('stok_kecil')->default(0);
+            $table->integer('stok_besar')->default(0);
             $table->integer('stok_minimal')->default(0);
             $table->text('deskripsi')->nullable();
             $table->string('foto')->nullable();
             $table->string('qr_code')->nullable();
             $table->date('tgl_kadaluarsa')->nullable();
+            $table->date('tgl_diterima')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -57,8 +63,10 @@ return new class extends Migration
             $table->foreignId('warehouse_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete(); // Operator
             $table->enum('jenis', ['masuk', 'keluar', 'penyesuaian']);
-            $table->integer('jumlah');
+            $table->integer('jumlah_kecil');
+            $table->integer('jumlah_besar')->default(0);
             $table->string('penerima_penyerah')->nullable();
+            $table->string('keperluan')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamp('tgl_transaksi');
             $table->timestamps();

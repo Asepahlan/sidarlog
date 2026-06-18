@@ -23,11 +23,12 @@ class StockMutationObserver
         }
     }
 
-    /**
-     * Handle the StockMutation "deleted" event.
-     */
     public function deleted(StockMutation $mutation): void
     {
-        ActivityLog::log("Menghapus Mutasi: {$mutation->no_mutasi}", "Mutasi Gudang");
+        $itemName = $mutation->barang ? $mutation->barang->nama_barang : 'ID #' . $mutation->barang_id;
+        ActivityLog::log(
+            "Membatalkan Mutasi: {$mutation->no_mutasi} | Barang: {$itemName} | {$mutation->jumlah_barang_kecil} unit dari gudang #{$mutation->gudang_asal_id} ke #{$mutation->gudang_tujuan_id}",
+            "Mutasi Gudang"
+        );
     }
 }

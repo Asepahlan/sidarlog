@@ -64,7 +64,7 @@ class UserRoleSeeder extends Seeder
             
             $userData['jabatan_id'] = $jabatan->id;
             $userData['bidang_id'] = $bidang->id;
-            $userData['instansi'] = 'Dinas Komunikasi dan Informatika';
+            $userData['instansi_opd'] = 'Dinas Komunikasi dan Informatika';
             $userData['status_pegawai'] = 'Aktif';
 
             $user = User::updateOrCreate(['nip' => $userData['nip']], $userData);

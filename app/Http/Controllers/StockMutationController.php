@@ -169,12 +169,6 @@ class StockMutationController extends Controller
                 $item->save();
                 \App\Services\NotificationService::checkAndNotifyForItem($item);
 
-                // Log sebelum hapus (Observer akan mencatat juga)
-                ActivityLog::log(
-                    "Membatalkan Mutasi: {$mutation->no_mutasi} | Barang: {$item->nama_barang} | {$jumlah} unit dari gudang #{$mutation->gudang_asal_id} ke #{$mutation->gudang_tujuan_id}",
-                    "Mutasi Gudang"
-                );
-
                 $mutation->delete();
             });
 
