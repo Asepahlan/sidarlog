@@ -64,7 +64,13 @@
                             </span>
                         </td>
                         <td class="px-4 py-5 text-right space-x-2">
-                            <button @click="editItem = {{ $user->toJson() }}; editRole = '{{ $user->roles->first()->name ?? '' }}'; openEdit = true" class="text-blue-600 hover:text-blue-800">
+                            <form id="reset-form-{{ $user->id }}" action="{{ route('users.reset-password', $user->id) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="button" @click="triggerDelete('reset-form-{{ $user->id }}', 'Reset Password ke Default?', 'Apakah Anda yakin ingin mereset password user ' + '{{ $user->nama_lengkap }}' + ' ke password default (\'password\')?')" class="text-amber-600 hover:text-amber-800 transition-colors" title="Reset Password ke Default">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                            </form>
+                            <button @click="editItem = {{ $user->toJson() }}; editRole = '{{ $user->roles->first()->name ?? '' }}'; openEdit = true" class="text-blue-600 hover:text-blue-800" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
                             @if($user->id !== auth()->id())

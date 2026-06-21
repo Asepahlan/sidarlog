@@ -1,69 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Laporan Transaksi {{ ucfirst($jenis ?? 'Keseluruhan') }}</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #1a1a1a; padding: 20px; }
+        @page { margin: 1.5cm 2cm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 9pt; color: #1a1a1a; margin: 0; padding: 0; }
 
-        /* HEADER */
-        .kop { display: flex; align-items: center; border-bottom: 3px solid #1e40af; padding-bottom: 10px; margin-bottom: 8px; }
-        .kop-text { flex: 1; }
-        .kop-text h1 { font-size: 14pt; color: #1e40af; font-weight: bold; }
-        .kop-text p  { font-size: 8pt; color: #555; }
-        .kop-badge { background: #1e40af; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 8pt; font-weight: bold; }
+        /* ─── KOP ─── */
+        .kop-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+        .kop-logo-cell { width: 90px; vertical-align: middle; text-align: center; }
+        .kop-logo { width: 78px; height: auto; }
+        .kop-logo-placeholder .logo-circle {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: #1e3a5f; display: flex; align-items: center;
+            justify-content: center; margin: 0 auto;
+        }
+        .kop-text-cell { vertical-align: middle; text-align: center; padding: 4px 0; }
+        .kop-instansi-atas { font-size: 10pt; font-weight: normal; }
+        .kop-instansi-nama { font-size: 14pt; font-weight: bold; text-transform: uppercase; }
+        .kop-instansi-info { font-size: 8pt; color: #333; margin-top: 1px; }
+        .kop-divider-top { border-top: 4px solid #1e3a5f; border-bottom: 1.5px solid #1e3a5f; margin-top: 5px; height: 2px; }
 
-        .meta { margin: 8px 0 14px; font-size: 8pt; color: #555; }
-        .meta span { margin-right: 18px; }
+        /* ─── TITLE ─── */
+        .report-title { text-align: center; margin: 10px 0 4px; }
+        .report-title h2 { font-size: 12pt; margin: 0; text-decoration: underline; text-transform: uppercase; }
+        .meta { margin: 6px 0 10px; font-size: 8pt; color: #555; }
+        .meta span { margin-right: 16px; }
         .meta strong { color: #1a1a1a; }
+        .filter-info { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 4px 8px; font-size: 8pt; margin-bottom: 10px; color: #1e40af; }
 
-        .filter-info { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 5px 10px; font-size: 8pt; margin-bottom: 12px; color: #1e40af; }
+        /* ─── TABLE ─── */
+        table.data-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 8pt; }
+        table.data-table thead tr { background: #1e3a5f; color: #fff; }
+        table.data-table thead th { padding: 5px 4px; text-align: left; font-weight: bold; }
+        table.data-table tbody tr:nth-child(even) { background: #f0f6ff; }
+        table.data-table tbody td { padding: 4px; border-bottom: 1px solid #dde3ea; vertical-align: top; }
 
-        /* TABLE */
-        table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 8pt; }
-        thead tr { background: #1e40af; color: #fff; }
-        thead th { padding: 6px 5px; text-align: left; font-weight: bold; }
-        tbody tr:nth-child(even) { background: #f0f7ff; }
-        tbody tr:hover { background: #dbeafe; }
-        tbody td { padding: 5px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+        .badge-masuk  { background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:3px; font-weight:bold; font-size:7.5pt; }
+        .badge-keluar { background:#fee2e2; color:#b91c1c; padding:1px 5px; border-radius:3px; font-weight:bold; font-size:7.5pt; }
 
-        .badge-masuk  { background:#dcfce7; color:#15803d; padding:1px 6px; border-radius:3px; font-weight:bold; font-size:7.5pt; }
-        .badge-keluar { background:#fee2e2; color:#b91c1c; padding:1px 6px; border-radius:3px; font-weight:bold; font-size:7.5pt; }
-
-        .summary { margin-top: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius:4px; padding: 8px 12px; font-size: 8.5pt; }
-        .summary table { margin-top: 0; }
+        /* ─── SUMMARY ─── */
+        .summary { margin-top: 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 7px 10px; font-size: 8.5pt; }
+        .summary table { width: auto; border: none; }
         .summary td { border: none; padding: 2px 6px; }
-        .summary .label { color: #555; font-weight: bold; }
+        .summary .lbl { color: #444; font-weight: bold; }
 
-        .footer { margin-top: 20px; border-top: 1px solid #e5e7eb; padding-top: 6px; font-size: 7.5pt; color: #888; display: flex; justify-content: space-between; }
+        /* ─── FOOTER ─── */
+        .footer { margin-top: 16px; border-top: 1px solid #cbd5e1; padding-top: 5px; font-size: 7.5pt; color: #888; }
+        .footer-inner { display: flex; justify-content: space-between; }
+
+        /* ─── SIGNATURE ─── */
+        .sig-section { margin-top: 30px; }
+        .sig-table { width: 100%; border-collapse: collapse; }
+        .sig-table td { width: 50%; vertical-align: top; text-align: center; border: none; padding: 0 10px; }
+        .sig-name { margin-top: 50px; font-weight: bold; }
+        .sig-name .underline { text-decoration: underline; }
     </style>
 </head>
 <body>
+@php
+    $logoSrc  = null;
+    $logoPath = public_path('img/logo-daerah.png');
+    if (file_exists($logoPath)) {
+        $ext     = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+        $mime    = $ext === 'png' ? 'image/png' : 'image/jpeg';
+        $logoSrc = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+    }
+@endphp
 
-    {{-- KOP SURAT --}}
-    <div class="kop">
-        <div class="kop-text">
-            <h1>BADAN PENANGGULANGAN BENCANA DAERAH</h1>
-            <p>Sistem Informasi Manajemen Logistik &amp; Inventory (SIDARLOG)</p>
-        </div>
-        <div class="kop-badge">LAPORAN RESMI</div>
+    {{-- ═══ KOP SURAT ═══ --}}
+    <table class="kop-table">
+        <tr>
+            <td class="kop-logo-cell">
+                @if($logoSrc)
+                    <img src="{{ $logoSrc }}" class="kop-logo" alt="Logo BPBD">
+                @else
+                    <div class="kop-logo-placeholder">
+                        <div class="logo-circle">
+                            <span style="font-size:20pt; color:#fff; font-weight:bold;">⚙</span>
+                        </div>
+                    </div>
+                @endif
+            </td>
+            <td class="kop-text-cell">
+                <div class="kop-instansi-atas">PEMERINTAH DAERAH KABUPATEN TASIKMALAYA</div>
+                <div class="kop-instansi-nama">BADAN PENANGGULANGAN BENCANA DAERAH</div>
+                <div class="kop-instansi-info">Jl. Otto Iskandardinata No. 19 Tasikmalaya Telp dan Fax (0265) 334111</div>
+                <div class="kop-instansi-info">Email: bpbd@tasikmalayakab.go.id &nbsp;|&nbsp; TASIKMALAYA - 46113</div>
+            </td>
+        </tr>
+    </table>
+    <div class="kop-divider-top"></div>
+
+    <div class="report-title">
+        <h2>Laporan Barang {{ ucfirst($jenis ?? 'Semua Transaksi') }}</h2>
     </div>
-
-    <h2 style="font-size:11pt; color:#1e40af; margin:6px 0 2px;">
-        LAPORAN BARANG {{ strtoupper($jenis ?? 'SEMUA TRANSAKSI') }}
-    </h2>
 
     <div class="meta">
         <span><strong>Tanggal Cetak:</strong> {{ date('d/m/Y H:i') }}</span>
         <span><strong>Total Data:</strong> {{ $transactions->count() }} transaksi</span>
+        @if($jenis)
+        <span><strong>Jenis:</strong> {{ strtoupper($jenis) }}</span>
+        @endif
     </div>
 
     @if(!empty($filterInfo))
     <div class="filter-info">&#128269; Filter aktif: {{ $filterInfo }}</div>
     @endif
 
-    <table>
+    <table class="data-table">
         <thead>
             <tr>
                 <th style="width:22px">No</th>
@@ -108,15 +155,16 @@
                 <td>{{ $tx->gudang->nama_gudang ?? '-' }}</td>
                 <td style="font-size:7.5pt;">
                     @if($tx->pihakKesatu) <div>{{ $tx->pihakKesatu->nama_pihak }}</div> @endif
-                    @if($tx->pihakKedua)  <div>{{ $tx->pihakKedua->nama_pihak }}</div> @endif
-                    @if(!$tx->pihakKesatu && !$tx->pihakKedua) - @endif
+                    @if($tx->pihakKedua)  <div>{{ $tx->pihakKedua->nama_pihak }}</div>  @endif
+                    @if($tx->penerima_penyerah) <div>{{ $tx->penerima_penyerah }}</div> @endif
+                    @if(!$tx->pihakKesatu && !$tx->pihakKedua && !$tx->penerima_penyerah) - @endif
                 </td>
                 <td style="font-size:7.5pt;">{{ $tx->referenceBap?->nomor_ba ?? '-' }}</td>
                 <td style="font-size:7.5pt;">{{ $tx->keterangan ?? '-' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="10" style="text-align:center; color:#888; padding:20px;">
+                <td colspan="10" style="text-align:center; color:#888; padding:18px; font-style:italic;">
                     Tidak ada data transaksi.
                 </td>
             </tr>
@@ -125,27 +173,46 @@
     </table>
 
     {{-- SUMMARY --}}
-    <div class="summary" style="margin-top:14px;">
+    <div class="summary">
         <strong>Ringkasan:</strong>
-        <table style="width:auto; margin-top:4px;">
+        <table>
             <tr>
-                <td class="label">Total Masuk</td>
+                <td class="lbl">Total Masuk</td>
                 <td>: {{ $transactions->where('jenis','masuk')->count() }} transaksi
-                    ({{ $transactions->where('jenis','masuk')->sum('jumlah_barang_kecil') }} unit kecil)
+                    ({{ number_format($transactions->where('jenis','masuk')->sum('jumlah_barang_kecil')) }} unit kecil)
                 </td>
             </tr>
             <tr>
-                <td class="label">Total Keluar</td>
+                <td class="lbl">Total Keluar</td>
                 <td>: {{ $transactions->where('jenis','keluar')->count() }} transaksi
-                    ({{ $transactions->where('jenis','keluar')->sum('jumlah_barang_kecil') }} unit kecil)
+                    ({{ number_format($transactions->where('jenis','keluar')->sum('jumlah_barang_kecil')) }} unit kecil)
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    {{-- TANDA TANGAN --}}
+    <div class="sig-section">
+        <table class="sig-table">
+            <tr>
+                <td></td>
+                <td>
+                    <div>Tasikmalaya, {{ date('d/m/Y') }}</div>
+                    <div>Kepala Pelaksana BPBD Kabupaten Tasikmalaya</div>
+                    <div class="sig-name">
+                        <span class="underline">RONI, A.Ks., M.M</span><br>
+                        <span style="font-size:8pt; font-weight:normal;">NIP. 19690901 199303 1 004</span>
+                    </div>
                 </td>
             </tr>
         </table>
     </div>
 
     <div class="footer">
-        <span>Dicetak oleh SIDARLOG &mdash; Sistem Manajemen Logistik BPBD</span>
-        <span>{{ date('d/m/Y H:i:s') }}</span>
+        <div class="footer-inner">
+            <span>Dicetak oleh SIDARLOG &mdash; Sistem Manajemen Logistik BPBD Kab. Tasikmalaya</span>
+            <span>{{ date('d/m/Y H:i:s') }}</span>
+        </div>
     </div>
 
 </body>

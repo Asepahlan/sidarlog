@@ -35,6 +35,7 @@ class SampleDataSeeder extends Seeder
             'pengguna_id' => $user->id,
             'jenis' => 'masuk',
             'jumlah_barang_kecil' => 50,
+            'penerima_penyerah' => 'Pemasok Contoh',
             'tgl_transaksi' => now(),
         ]);
 

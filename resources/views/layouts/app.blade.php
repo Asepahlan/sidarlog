@@ -281,12 +281,20 @@
             open: false,
             title: 'Hapus Data?',
             message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.',
+            icon: 'fas fa-trash-can',
+            iconBg: 'bg-red-50 dark:bg-red-900/20 text-red-600',
+            btnBg: 'bg-red-600 shadow-red-500/30 hover:bg-red-700',
+            btnText: 'Ya, Hapus',
             formId: null
         },
-        triggerDelete(formId, title = 'Hapus Data?', message = 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.') {
+        triggerDelete(formId, title = 'Hapus Data?', message = 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.', options = {}) {
             this.confirmDelete.formId = formId;
             this.confirmDelete.title = title;
             this.confirmDelete.message = message;
+            this.confirmDelete.icon = options.icon || 'fas fa-trash-can';
+            this.confirmDelete.iconBg = options.iconBg || 'bg-red-50 dark:bg-red-900/20 text-red-600';
+            this.confirmDelete.btnBg = options.btnBg || 'bg-red-600 shadow-red-500/30 hover:bg-red-700';
+            this.confirmDelete.btnText = options.btnText || 'Ya, Hapus';
             this.confirmDelete.open = true;
         },
         executeDelete() {
@@ -344,54 +352,9 @@
                 @can('dashboard.view')
                 <div class="mb-6">
                     <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[2px] mb-3" :class="sidebarCollapsed ? 'hidden' : 'block'">Utama</p>
-                    <x-sidebar-item title="Dashboard" href="/dashboard" icon="fas fa-grid-2" :active="request()->is('dashboard')" />
+                    <x-sidebar-item title="Dashboard" href="/dashboard" icon="fas fa-table-cells-large" :active="request()->is('dashboard')" />
                 </div>
                 @endcan
-
-                <!-- Master Data -->
-                @canany(['barang.view', 'master.kategori', 'master.satuan', 'master.lokasi', 'gudang.view', 'mutasi.view'])
-                <div class="mb-6">
-                    <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[2px] mb-3" :class="sidebarCollapsed ? 'hidden' : 'block'">Master Data</p>
-                    
-                    @can('barang.view')
-                    <x-sidebar-dropdown title="Barang" icon="fas fa-box" :active="request()->is('barang') || request()->is('barang/*') || request()->is('kategori*') || request()->is('lokasi-barang*') || request()->is('satuan*') || request()->is('sumber-anggaran*') || request()->is('pihak-kesatu*') || request()->is('pihak-kedua*') || request()->is('bap*')">
-                        <x-sidebar-submenu-item title="Data Barang" href="/barang" :active="request()->is('barang') || request()->is('barang/*')" />
-                        @can('master.kategori')
-                        <x-sidebar-submenu-item title="Kategori Barang" href="/kategori" :active="request()->is('kategori*')" />
-                        @endcan
-                        @can('master.lokasi')
-                        <x-sidebar-submenu-item title="Data Lokasi Barang" href="/lokasi-barang" :active="request()->is('lokasi-barang*')" />
-                        @endcan
-                        @can('master.satuan')
-                        <x-sidebar-submenu-item title="Data Satuan Barang" href="/satuan" :active="request()->is('satuan*')" />
-                        @endcan
-                        @can('master.sumber-anggaran')
-                        <x-sidebar-submenu-item title="Data Sumber Anggaran" href="/sumber-anggaran" :active="request()->is('sumber-anggaran*')" />
-                        @endcan
-                        @can('master.pihak-kesatu')
-                        <x-sidebar-submenu-item title="Referensi Pihak Kesatu" href="/pihak-kesatu" :active="request()->is('pihak-kesatu*')" />
-                        @endcan
-                        @can('master.pihak-kedua')
-                        <x-sidebar-submenu-item title="Referensi Pihak Kedua" href="/pihak-kedua" :active="request()->is('pihak-kedua*')" />
-                        @endcan
-                        @can('master.bap')
-                        <x-sidebar-submenu-item title="Referensi No. BAP" href="/bap" :active="request()->is('bap*')" />
-                        @endcan
-                    </x-sidebar-dropdown>
-                    @endcan
-
-                    @canany(['gudang.view', 'mutasi.view'])
-                    <x-sidebar-dropdown title="Gudang" icon="fas fa-warehouse" :active="request()->is('gudang*') || request()->is('mutasi-gudang*')">
-                        @can('gudang.view')
-                        <x-sidebar-submenu-item title="Data Gudang" href="/gudang" :active="request()->is('gudang*')" />
-                        @endcan
-                        @can('mutasi.view')
-                        <x-sidebar-submenu-item title="Mutasi Gudang" href="/mutasi-gudang" :active="request()->is('mutasi-gudang*')" />
-                        @endcan
-                    </x-sidebar-dropdown>
-                    @endcanany
-                </div>
-                @endcanany
 
                 <!-- Inventory -->
                 @canany(['transaksi.masuk.view', 'transaksi.keluar.view', 'opname.view'])
@@ -460,6 +423,51 @@
                         @endcan
                         @can('activity-log.view')
                         <x-sidebar-submenu-item title="Activity Log" href="/activity-log" :active="request()->is('activity-log*')" />
+                        @endcan
+                    </x-sidebar-dropdown>
+                    @endcanany
+                </div>
+                @endcanany
+
+                <!-- Master Data -->
+                @canany(['barang.view', 'master.kategori', 'master.satuan', 'master.lokasi', 'gudang.view', 'mutasi.view'])
+                <div class="mb-6">
+                    <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[2px] mb-3" :class="sidebarCollapsed ? 'hidden' : 'block'">Master Data</p>
+                    
+                    @can('barang.view')
+                    <x-sidebar-dropdown title="Barang" icon="fas fa-box" :active="request()->is('barang') || request()->is('barang/*') || request()->is('kategori*') || request()->is('lokasi-barang*') || request()->is('satuan*') || request()->is('sumber-anggaran*') || request()->is('pihak-kesatu*') || request()->is('pihak-kedua*') || request()->is('bap*')">
+                        <x-sidebar-submenu-item title="Data Barang" href="/barang" :active="request()->is('barang') || request()->is('barang/*')" />
+                        @can('master.kategori')
+                        <x-sidebar-submenu-item title="Kategori Barang" href="/kategori" :active="request()->is('kategori*')" />
+                        @endcan
+                        @can('master.lokasi')
+                        <x-sidebar-submenu-item title="Data Lokasi Barang" href="/lokasi-barang" :active="request()->is('lokasi-barang*')" />
+                        @endcan
+                        @can('master.satuan')
+                        <x-sidebar-submenu-item title="Data Satuan Barang" href="/satuan" :active="request()->is('satuan*')" />
+                        @endcan
+                        @can('master.sumber-anggaran')
+                        <x-sidebar-submenu-item title="Data Sumber Anggaran" href="/sumber-anggaran" :active="request()->is('sumber-anggaran*')" />
+                        @endcan
+                        @can('master.pihak-kesatu')
+                        <x-sidebar-submenu-item title="Referensi Pihak Kesatu" href="/pihak-kesatu" :active="request()->is('pihak-kesatu*')" />
+                        @endcan
+                        @can('master.pihak-kedua')
+                        <x-sidebar-submenu-item title="Referensi Pihak Kedua" href="/pihak-kedua" :active="request()->is('pihak-kedua*')" />
+                        @endcan
+                        @can('master.bap')
+                        <x-sidebar-submenu-item title="Referensi No. BAP" href="/bap" :active="request()->is('bap*')" />
+                        @endcan
+                    </x-sidebar-dropdown>
+                    @endcan
+
+                    @canany(['gudang.view', 'mutasi.view'])
+                    <x-sidebar-dropdown title="Gudang" icon="fas fa-warehouse" :active="request()->is('gudang*') || request()->is('mutasi-gudang*')">
+                        @can('gudang.view')
+                        <x-sidebar-submenu-item title="Data Gudang" href="/gudang" :active="request()->is('gudang*')" />
+                        @endcan
+                        @can('mutasi.view')
+                        <x-sidebar-submenu-item title="Mutasi Gudang" href="/mutasi-gudang" :active="request()->is('mutasi-gudang*')" />
                         @endcan
                     </x-sidebar-dropdown>
                     @endcanany
@@ -714,8 +722,8 @@
              x-transition:enter-end="opacity-100 scale-100 translate-y-0">
             
             <div class="p-8 text-center">
-                <div class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-3xl flex items-center justify-center text-red-600 mx-auto mb-6 shadow-inner">
-                    <i class="fas fa-trash-can text-3xl"></i>
+                <div class="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner" :class="confirmDelete.iconBg">
+                    <i :class="confirmDelete.icon" class="text-3xl"></i>
                 </div>
                 
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2" x-text="confirmDelete.title"></h3>
@@ -727,8 +735,9 @@
                         Batal
                     </button>
                     <button @click="executeDelete()" 
-                            class="flex-1 py-4 bg-red-600 text-white font-bold rounded-2xl shadow-xl shadow-red-500/30 transition-all hover:bg-red-700 active:scale-95 transform">
-                        Ya, Hapus
+                            :class="confirmDelete.btnBg"
+                            class="flex-1 py-4 text-white font-bold rounded-2xl shadow-xl transition-all active:scale-95 transform"
+                            x-text="confirmDelete.btnText">
                     </button>
                 </div>
             </div>

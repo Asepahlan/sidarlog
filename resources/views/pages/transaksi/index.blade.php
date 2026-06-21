@@ -56,6 +56,11 @@
                                     </span>
                                 @endif
                             </div>
+                            @if($tx->keterangan)
+                                <div class="text-[11px] text-gray-400 dark:text-gray-500 italic mt-1 max-w-[200px] truncate" title="{{ $tx->keterangan }}">
+                                    <i class="fas fa-info-circle text-[10px] mr-1"></i>{{ $tx->keterangan }}
+                                </div>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ $tx->gudang->nama_gudang ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $tx->jenis == 'masuk' ? 'text-green-600' : 'text-red-600' }}">
@@ -64,7 +69,9 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $tx->jenis == 'masuk' ? 'text-green-600' : 'text-red-600' }}">
                             {{ $tx->jenis == 'masuk' ? '+' : '-' }}{{ number_format($tx->jumlah_barang_besar) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $tx->penerima_penyerah ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {{ $tx->penerima_penyerah ?: ($tx->pihakKedua ? $tx->pihakKedua->nama_pihak : '-') }}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $tx->tgl_transaksi ? $tx->tgl_transaksi->format('d/m/Y H:i') : '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-center space-x-2">
                             <a href="{{ route('transaksi.bast', $tx->id) }}" target="_blank" class="text-primary-600 hover:text-primary-800 transition-colors" title="Cetak Berita Acara">

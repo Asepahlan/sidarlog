@@ -3,7 +3,26 @@
 @section('title', 'Master Barang')
 
 @section('content')
-<div class="space-y-6" x-data="{ openCreate: {{ $errors->any() && !request()->has('_method') ? 'true' : 'false' }}, openEdit: {{ $errors->any() && request()->has('_method') ? 'true' : 'false' }}, openQr: false, editItem: {} }">
+<div class="space-y-6" x-data="{ 
+    openCreate: {{ $errors->any() && !request()->has('_method') ? 'true' : 'false' }}, 
+    openEdit: {{ $errors->any() && request()->has('_method') ? 'true' : 'false' }}, 
+    openQr: false, 
+    editItem: @if(old('id')) {
+        id: '{{ old('id') }}',
+        nama_barang: '{{ old('nama_barang') }}',
+        kategori_id: '{{ old('kategori_id') }}',
+        lokasi_barang_id: '{{ old('lokasi_barang_id') }}',
+        sumber_anggaran_id: '{{ old('sumber_anggaran_id') }}',
+        satuan_kecil_id: '{{ old('satuan_kecil_id') }}',
+        satuan_besar_id: '{{ old('satuan_besar_id') }}',
+        harga_satuan_kecil: '{{ old('harga_satuan_kecil') }}',
+        harga_satuan_besar: '{{ old('harga_satuan_besar') }}',
+        stok_minimal: '{{ old('stok_minimal') }}',
+        deskripsi: '{{ old('deskripsi') }}',
+        tgl_diterima: '{{ old('tgl_diterima') }}',
+        tgl_kadaluarsa: '{{ old('tgl_kadaluarsa') }}'
+    } @else {} @endif
+}">
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
@@ -347,6 +366,7 @@
         <form :action="'/barang/' + editItem.id" method="POST" class="space-y-4 p-4">
             @csrf
             @method('PUT')
+            <input type="hidden" name="id" :value="editItem.id">
             @if($errors->any() && request()->has('_method'))
                 <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
                     <ul class="list-disc list-inside">
@@ -401,7 +421,7 @@
                             <label class="block text-xs font-medium text-gray-500">Satuan</label>
                             <select name="satuan_kecil_id" x-model="editItem.satuan_kecil_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
                                 @foreach(\App\Models\Unit::all() as $unit)
-                                    <option value="{{ $unit->id }}" {{ old('satuan_kecil_id') == $unit->id || old('satuan_besar_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
+                                    <option value="{{ $unit->id }}" {{ old('satuan_kecil_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -417,7 +437,7 @@
                             <select name="satuan_besar_id" x-model="editItem.satuan_besar_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
                                 <option value="">— Tidak Ada —</option>
                                 @foreach(\App\Models\Unit::all() as $unit)
-                                    <option value="{{ $unit->id }}" {{ old('satuan_kecil_id') == $unit->id || old('satuan_besar_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
+                                    <option value="{{ $unit->id }}" {{ old('satuan_besar_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
                                 @endforeach
                             </select>
                         </div>

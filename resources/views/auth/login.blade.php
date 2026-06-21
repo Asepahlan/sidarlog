@@ -55,9 +55,23 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(226, 232, 240, 0.8);
         }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="h-full mesh-gradient flex items-center justify-center p-6 relative overflow-hidden">
+<body class="h-full mesh-gradient flex items-center justify-center p-6 relative overflow-hidden" 
+      x-data="{ 
+          showPass: false, 
+          showForgotModal: false,
+          nip: localStorage.getItem('remember_nip') || '{{ old('nip') }}',
+          remember: localStorage.getItem('remember_nip') ? true : false,
+          saveNip() {
+              if (this.remember) {
+                  localStorage.setItem('remember_nip', this.nip);
+              } else {
+                  localStorage.removeItem('remember_nip');
+              }
+          }
+      }">
     <!-- Animated background elements -->
     <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/10 rounded-full blur-[120px] animate-pulse"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-600/10 rounded-full blur-[120px] animate-pulse" style="animation-delay: 2s"></div>
@@ -119,7 +133,7 @@
                 <p class="text-slate-500">Silakan masuk untuk melanjutkan akses ke portal logistik daerah BPBD.</p>
             </div>
  
-            <form action="/login" method="POST" class="space-y-6" x-data="{ showPass: false }">
+            <form action="/login" method="POST" class="space-y-6" @submit="saveNip()">
                 @csrf
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Username / NIP</label>
@@ -127,7 +141,7 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
                             <i class="fas fa-id-badge text-sm"></i>
                         </div>
-                        <input type="text" name="nip" required value="{{ old('nip') }}"
+                        <input type="text" name="nip" required x-model="nip"
                             class="w-full bg-slate-50/50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-slate-800 placeholder-slate-400 outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
                             placeholder="Contoh: 19880123XXXXXXXX">
                     </div>
@@ -139,7 +153,7 @@
                 <div class="space-y-2">
                     <div class="flex justify-between items-center px-1">
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Kata Sandi</label>
-                        <a href="#" class="text-[10px] font-bold text-primary-600 hover:text-primary-700 uppercase tracking-wider">Lupa Password?</a>
+                        <button type="button" @click="showForgotModal = true" class="text-[10px] font-bold text-primary-600 hover:text-primary-700 uppercase tracking-wider outline-none">Lupa Password?</button>
                     </div>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
@@ -159,7 +173,7 @@
  
                 <div class="flex items-center pt-2">
                     <label class="flex items-center cursor-pointer group">
-                        <input type="checkbox" name="remember" class="hidden peer">
+                        <input type="checkbox" name="remember" class="hidden peer" x-model="remember" value="1">
                         <div class="w-5 h-5 border-2 border-slate-200 rounded-lg flex items-center justify-center peer-checked:bg-primary-500 peer-checked:border-primary-500 transition-all">
                             <i class="fas fa-check text-white text-[10px] hidden peer-checked:block"></i>
                         </div>
@@ -178,6 +192,59 @@
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
                     {{ \App\Models\Setting::get('footer_text', '© 2026 Pemerintah Kabupaten - Digital Logistics.') }}
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Lupa Password -->
+    <div x-show="showForgotModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+         x-cloak>
+        <div class="bg-white rounded-[32px] max-w-md w-full p-8 border border-slate-100 shadow-2xl relative overflow-hidden" @click.away="showForgotModal = false">
+            <div class="absolute top-[-10%] right-[-10%] w-[30%] h-[30%] bg-primary-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-primary-50 text-primary-600 rounded-xl flex items-center justify-center shadow-inner">
+                    <i class="fas fa-key text-sm"></i>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-800">Lupa Kata Sandi?</h3>
+            </div>
+            
+            <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+                <p>Untuk menjaga keamanan data logistik kebencanaan, pemulihan kata sandi dilakukan secara terpusat oleh Administrator.</p>
+                
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                    <div class="flex items-start gap-2.5">
+                        <span class="w-5 h-5 rounded-full bg-primary-500 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                        <span>Hubungi **Super Admin** atau **Admin Logistik** BPBD.</span>
+                    </div>
+                    <div class="flex items-start gap-2.5">
+                        <span class="w-5 h-5 rounded-full bg-primary-500 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                        <span>Informasikan **NIP** dan nama lengkap Anda untuk verifikasi identitas.</span>
+                    </div>
+                    <div class="flex items-start gap-2.5">
+                        <span class="w-5 h-5 rounded-full bg-primary-500 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                        <span>Administrator akan mereset sandi Anda ke kata sandi bawaan sistem.</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-amber-50 border border-amber-200/50 rounded-2xl text-amber-800 text-xs flex items-start gap-2">
+                    <i class="fas fa-circle-info mt-0.5 text-sm"></i>
+                    <span>Setelah berhasil login menggunakan kata sandi default, harap **segera mengubah** kata sandi Anda pada menu **Profil** demi keamanan akun.</span>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-end">
+                <button type="button" @click="showForgotModal = false" 
+                        class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-all">
+                    Tutup
+                </button>
             </div>
         </div>
     </div>

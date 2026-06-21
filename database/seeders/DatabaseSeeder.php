@@ -32,6 +32,9 @@ class DatabaseSeeder extends Seeder
             Role::firstOrCreate(['name' => $roleName]);
         }
 
+        // Run PermissionSeeder to seed permissions and map them to roles
+        $this->call(PermissionSeeder::class);
+
         // 2. Create Organization Master Data
         $jabatan = Jabatan::create(['nama_jabatan' => 'Kepala Bidang']);
         $bidang = Bidang::create(['nama_bidang' => 'Logistik']);
@@ -60,8 +63,10 @@ class DatabaseSeeder extends Seeder
 
         $admin->assignRole('super_admin');
 
+        // Seed other default role users
+        $this->call(UserRoleSeeder::class);
+
         // 5. Dummy data for testing notifications & UI
-        $this->call(SampleDataSeeder::class);
         $this->call(DummyNotificationSeeder::class);
 
         echo "Seeding completed. Login NIP: 1234567890, Pass: password\n";

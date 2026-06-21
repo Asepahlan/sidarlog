@@ -91,4 +91,18 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'User berhasil dihapus');
     }
+
+    public function resetPassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Reset to default password 'password'
+        $user->update([
+            'password' => Hash::make('password')
+        ]);
+
+        ActivityLog::log("Mereset password user ke default: {$user->nama_lengkap}", "Manajemen User");
+
+        return redirect()->back()->with('success', "Password untuk {$user->nama_lengkap} berhasil direset ke password default ('password')");
+    }
 }

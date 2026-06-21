@@ -133,6 +133,9 @@ Route::middleware('auth')->group(function () {
     // ── SISTEM: USER & ROLE MANAGEMENT ──────────────────────────────
     Route::resource('users', \App\Http\Controllers\UserController::class)
         ->middleware('permission:user.manage');
+    Route::post('/users/{id}/reset-password', [\App\Http\Controllers\UserController::class, 'resetPassword'])
+        ->name('users.reset-password')
+        ->middleware('permission:user.manage');
     Route::resource('jabatan', \App\Http\Controllers\JabatanController::class)
         ->middleware('permission:user.manage');
     Route::resource('bidang', \App\Http\Controllers\BidangController::class)

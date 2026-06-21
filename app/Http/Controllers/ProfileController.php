@@ -23,17 +23,35 @@ class ProfileController extends Controller
         
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'nip' => [
+                'nullable',
+                'string',
+                'max:20',
+                Rule::unique('users', 'nip')->ignore($user->id)
+            ],
             'email' => [
                 'nullable',
                 'email',
                 'max:255',
                 Rule::unique('users')->ignore($user->id)
             ],
-            'nip' => 'nullable|string|max:20',
+            'no_hp' => 'nullable|string|max:20',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $user->update($request->only(['nama_lengkap', 'username', 'email', 'nip']));
+        $data = $request->only(['nama_lengkap', 'nip', 'email', 'no_hp']);
+
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($user->foto && file_exists(public_path($user->foto))) {
+                @unlink(public_path($user->foto));
+            }
+            
+            $path = $request->file('foto')->store('avatars', 'public');
+            $data['foto'] = '/storage/' . $path;
+        }
+
+        $user->update($data);
 
         return back()->with('success', 'Profil berhasil diperbarui.');
     }

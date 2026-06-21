@@ -1,59 +1,130 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIDARLOG — Sistem Informasi Data & Arsip Logistik
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="300" alt="Laravel Logo">
 </p>
 
-## About Laravel
+**SIDARLOG** adalah platform web manajemen logistik terpadu yang dirancang untuk mengelola inventaris, melacak transaksi barang masuk dan keluar, mencatat mutasi stok antar gudang, melakukan audit fisik (stock opname), serta menghasilkan dokumen Berita Acara Serah Terima (BAST) dan laporan logistik secara otomatis dalam format PDF dan Excel.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Aplikasi ini dikembangkan menggunakan framework **Laravel 12**, styled dengan **Tailwind CSS v4** melalui Vite, serta dilengkapi sistem otorisasi Role & Permission menggunakan **Spatie Laravel Permission**.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🚀 Fitur Utama
 
-## Learning Laravel
+- **Dashboard Real-Time**: Informasi statistik tingkat tinggi mengenai stok barang, mutasi, transaksi terbaru, serta optimasi sistem cache.
+- **Manajemen Master Data**:
+  - **Barang (Inventory)**: Pencatatan barang dengan kode unik, kategori, satuan, deskripsi, dan QR Code otomatis (SVG). Dilengkapi fitur Trash (Soft Deletes), Restore, dan Force Delete.
+  - **Kategori & Satuan**: Pengelompokan barang dan definisi unit ukuran (misalnya: Pcs, Rim, Box).
+  - **Gudang & Lokasi**: Pengelolaan multi-gudang (Warehouse) dan detail rak penyimpanan barang.
+  - **Pihak Kesatu & Kedua**: Informasi instansi atau personil yang menyerahkan dan menerima barang.
+  - **Berita Acara Penyerahan (BAP) & Sumber Anggaran**: Dokumen referensi hukum transaksi dan asal dana barang.
+- **Transaksi Logistik**:
+  - **Barang Masuk**: Pencatatan stok masuk beserta nomor referensi, asal anggaran, dan gudang tujuan.
+  - **Barang Keluar**: Pencatatan stok keluar beserta pencetakan Berita Acara Serah Terima (BAST).
+  - **Mutasi Stok**: Pemindahan barang antar gudang dengan alur persetujuan (Approval) pihak berwenang.
+- **Stock Opname**: Audit stok fisik secara berkala untuk mencocokkan stok sistem dengan stok riil di gudang.
+- **Pelaporan & Export**:
+  - Laporan stok barang, transaksi masuk/keluar, stock opname, dan mutasi gudang.
+  - Export data secara dinamis ke file **PDF** (via DomPDF) dan **Excel** (via Maatwebsite Excel).
+- **Manajemen Pengguna & Otorisasi**:
+  - Manajemen User, Jabatan, Bidang, serta Role.
+  - Role-based Access Control (RBAC) dengan 6 level pengguna bawaan: *Super Admin, Admin Logistik, Staff Gudang, Kepala Bidang (Kabid), Pimpinan, dan Operator Portal*.
+- **Log Aktivitas & Notifikasi**:
+  - Pencatatan otomatis log audit aktivitas user (seperti pembuatan, pengeditan, atau penghapusan data) menggunakan model Observers.
+  - Pusat notifikasi real-time untuk user.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🛠️ Tech Stack & Dependencies
 
-## Laravel Sponsors
+- **Framework**: [Laravel 12.x](https://laravel.com)
+- **Runtime**: PHP >= 8.2
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) (via `@tailwindcss/vite`)
+- **Build Tool**: [Vite](https://vite.dev)
+- **Database**: MySQL / SQLite
+- **Dependencies Utama (Composer)**:
+  - `spatie/laravel-permission` — Mengatur hak akses & role.
+  - `barryvdh/laravel-dompdf` — Export laporan ke format PDF.
+  - `maatwebsite/excel` — Export laporan ke format Excel.
+  - `simplesoftwareio/simple-qrcode` — Membuat QR Code barang secara dinamis.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## ⚙️ Persyaratan Sistem
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Pastikan perangkat Anda sudah terpasang:
+- PHP >= 8.2 (dengan ekstensi `pdo`, `mbstring`, `openssl`, `gd`, `zip`)
+- Composer
+- Node.js & NPM
+- Database server (MySQL/MariaDB)
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 💻 Panduan Instalasi Lokal
 
-## Code of Conduct
+### 1. Klon Repositori
+```bash
+git clone <repository-url>
+cd sidarlog
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 2. Konfigurasi Lingkungan (Environment) & Setup
+Aplikasi menyediakan command setup instan via Composer untuk menginstal semua dependency dan mempersiapkan aplikasi:
+```bash
+composer run setup
+```
+*Script setup di atas akan melakukan:*
+- Pemasangan package Composer (`composer install`).
+- Penyalinan `.env.example` menjadi `.env` (jika belum ada).
+- Pembuatan Application Key (`php artisan key:generate`).
+- Migrasi database (`php artisan migrate --force`).
+- Instalasi package Node (`npm install`).
+- Build aset Frontend (`npm run build`).
 
-## Security Vulnerabilities
+### 3. Konfigurasi Database
+Buka file `.env` yang baru dibuat di root project dan sesuaikan konfigurasi koneksi database Anda:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_sidarlog
+DB_USERNAME=username_anda
+DB_PASSWORD=password_anda
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Seed Database (Data Awal & Pengguna Test)
+Jalankan seeder untuk mengisi data master awal, izin akses (permissions), dan akun-akun uji coba:
+```bash
+php artisan db:seed
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🔐 Akun Akses Uji Coba
+
+Gunakan kredensial berikut untuk masuk ke sistem setelah menjalankan perintah seeder (semua akun menggunakan password: `password`):
+
+| NIP | Nama Pengguna | Role | Email | Deskripsi |
+| :--- | :--- | :--- | :--- | :--- |
+| **1234567890** | Super Admin | `super_admin` | `admin@sidarlog.test` | Akses penuh sistem (bypass all gates) |
+| **1111111111** | Logistik Admin | `admin_logistik` | `andi@sidarlog.test` | Mengelola data logistik, transaksi, & laporan |
+| **2222222222** | Staff Gudang | `staff_gudang` | `budi@sidarlog.test` | Mencatat transaksi masuk/keluar & opname stok |
+| **3333333333** | Kabid Logistik | `kabid` | `citra@sidarlog.test` | Melakukan verifikasi/approve mutasi & melihat laporan |
+| **4444444444** | Pimpinan | `pimpinan` | `dedi@sidarlog.test` | Memantau dashboard & melihat laporan |
+| **5555555555** | Operator Portal | `operator_portal` | `eka@sidarlog.test` | Hak akses baca saja (viewer) |
+
+---
+
+## 🏃 Menjalankan Aplikasi
+
+Aplikasi menyediakan script running concurrently yang menjalankan server lokal Laravel, antrean queue (untuk notifikasi/email), log watcher, dan Vite dev server secara bersamaan:
+
+```bash
+composer run dev
+```
+
+Atau jika ingin menjalankannya secara terpisah:
+- **Server Web**: `php artisan serve`
+- **Vite Dev Server (Assets)**: `npm run dev`
+- **Queue Listener**: `php artisan queue:listen`
