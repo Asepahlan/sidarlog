@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
+        $schedule->command('stock:recalculate')->dailyAt('06:30');
         $schedule->command('notifications:push')->dailyAt('07:00');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

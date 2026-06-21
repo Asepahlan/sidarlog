@@ -163,10 +163,19 @@ class DashboardController extends Controller
 
     public function optimize()
     {
-        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-        \Illuminate\Support\Facades\Artisan::call('stock:recalculate');
-        \Illuminate\Support\Facades\Artisan::call('notifications:push');
-        \App\Models\ActivityLog::log("Optimasi sistem + recalculate stok + push notifikasi", "System");
-        return back()->with('success', 'Sistem berhasil dioptimasi dan notifikasi diperbarui.');
+        try {
+            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+            \Illuminate\Support\Facades\Artisan::call('stock:recalculate');
+            \Illuminate\Support\Facades\Artisan::call('notifications:push');
+            
+            \App\Models\ActivityLog::log("Optimasi sistem + recalculate stok + push notifikasi", "System");
+            
+            return back()->with('success', 'Sistem berhasil dioptimasi, kalkulasi stok diselaraskan, dan notifikasi terbaru diperbarui.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Maintenance Error: " . $e->getMessage(), [
+                'exception' => $e
+            ]);
+            return back()->with('error', 'Gagal menjalankan maintenance rutin: ' . $e->getMessage());
+        }
     }
 }
