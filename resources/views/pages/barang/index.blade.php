@@ -488,11 +488,114 @@
             </div>
             <div class="flex w-full space-x-3">
                 <button @click="openQr = false" class="flex-1 py-3 bg-gray-50 text-gray-600 font-bold rounded-xl">Tutup</button>
-                <button class="flex-1 py-3 bg-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30">
+                <button @click="printLabel(editItem.kode_barang, editItem.nama_barang)" class="flex-1 py-3 bg-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30">
                     <i class="fas fa-print mr-2"></i> Cetak
                 </button>
             </div>
         </div>
     </x-modal>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function printLabel(kode, nama) {
+    const printWindow = window.open('', '_blank', 'width=450,height=550');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Cetak Label - ${nama}</title>
+            <style>
+                body {
+                    font-family: 'Courier New', Courier, monospace;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background-color: white;
+                }
+                .label-card {
+                    border: 2px dashed #000;
+                    padding: 20px;
+                    width: 280px;
+                    text-align: center;
+                    box-sizing: border-box;
+                    background-color: white;
+                }
+                .header {
+                    font-size: 11px;
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                    letter-spacing: 0.5px;
+                }
+                .subheader {
+                    font-size: 10px;
+                    margin-bottom: 10px;
+                    border-bottom: 1px solid #000;
+                    padding-bottom: 8px;
+                }
+                .qr-image {
+                    width: 160px;
+                    height: 160px;
+                    object-fit: contain;
+                    margin: 0 auto;
+                }
+                .title {
+                    font-size: 14px;
+                    font-weight: bold;
+                    margin-top: 10px;
+                    margin-bottom: 4px;
+                    word-wrap: break-word;
+                }
+                .code {
+                    font-size: 13px;
+                    font-weight: bold;
+                    font-family: monospace;
+                    background-color: #f1f5f9;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    display: inline-block;
+                }
+                .footer {
+                    font-size: 9px;
+                    margin-top: 12px;
+                    color: #555;
+                    border-top: 1px dashed #ccc;
+                    padding-top: 6px;
+                }
+                @media print {
+                    body {
+                        height: auto;
+                        background: none;
+                    }
+                    .label-card {
+                        border: 2px solid #000; /* Solid border for cutting guide */
+                        box-shadow: none;
+                        margin: 0;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="label-card">
+                <div class="header">BPBD KAB. TASIKMALAYA</div>
+                <div class="subheader">LOGISTIK KEBENCANAAN</div>
+                <img src="/barang/qr/${kode}.svg" class="qr-image" />
+                <div class="title">${nama}</div>
+                <div class="code">${kode}</div>
+                <div class="footer">SIDARLOG — Sistem Data & Arsip</div>
+            </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(() => window.close(), 250);
+                }
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+</script>
 @endsection

@@ -143,10 +143,18 @@ class ItemController extends Controller
 
     public function generateQr($code)
     {
+        // Cari barang berdasarkan kode unik
+        $item = \App\Models\Item::where('kode_barang', $code)->first();
+        
+        // Gunakan URL detail barang jika ditemukan, jika tidak gunakan kode barang mentah
+        $content = $item ? route('barang.show', $item->id) : $code;
+
         $qr = (string) QrCode::format('svg')
             ->size(300)
-            ->margin(2)
-            ->generate($code);
+            ->margin(1)
+            ->errorCorrection('H')
+            ->color(30, 41, 59) // Slate 800 (navy gelap premium) untuk kontras tinggi
+            ->generate($content);
 
         return response($qr)->header('Content-Type', 'image/svg+xml');
     }
