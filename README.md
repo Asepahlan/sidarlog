@@ -1,130 +1,225 @@
 # SIDARLOG — Sistem Informasi Data & Arsip Logistik
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="300" alt="Laravel Logo">
-</p>
+<div align="center">
+  <img src="public/img/logo-daerah.png" width="100" alt="Logo BPBD Kabupaten Tasikmalaya">
+  <br><br>
+  <strong>BADAN PENANGGULANGAN BENCANA DAERAH</strong><br>
+  <em>Kabupaten Tasikmalaya</em>
+  <br><br>
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel&logoColor=white">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php&logoColor=white">
+  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql&logoColor=white">
+  <img alt="License" src="https://img.shields.io/badge/Lisensi-Internal%20BPBD-orange?style=flat-square">
+</div>
 
-**SIDARLOG** adalah platform web manajemen logistik terpadu yang dirancang untuk mengelola inventaris, melacak transaksi barang masuk dan keluar, mencatat mutasi stok antar gudang, melakukan audit fisik (stock opname), serta menghasilkan dokumen Berita Acara Serah Terima (BAST) dan laporan logistik secara otomatis dalam format PDF dan Excel.
+---
 
-Aplikasi ini dikembangkan menggunakan framework **Laravel 12**, styled dengan **Tailwind CSS v4** melalui Vite, serta dilengkapi sistem otorisasi Role & Permission menggunakan **Spatie Laravel Permission**.
+**SIDARLOG** adalah platform web manajemen logistik kebencanaan terpadu yang dikembangkan khusus untuk **BPBD Kabupaten Tasikmalaya** dalam rangka Kerja Praktik mahasiswa. Sistem ini dirancang untuk mengelola inventaris perlengkapan/logistik kebencanaan, melacak transaksi barang masuk dan keluar, mencatat mutasi stok antar gudang, melakukan audit fisik (stock opname), serta menghasilkan dokumen **Berita Acara Serah Terima (BAST)** dan laporan logistik resmi secara otomatis dalam format PDF dan Excel.
 
 ---
 
 ## 🚀 Fitur Utama
 
-- **Dashboard Real-Time**: Informasi statistik tingkat tinggi mengenai stok barang, mutasi, transaksi terbaru, serta optimasi sistem cache.
+- **Dashboard Real-Time** — Statistik stok barang, transaksi terbaru, barang menipis/habis, dan notifikasi sistem.
 - **Manajemen Master Data**:
-  - **Barang (Inventory)**: Pencatatan barang dengan kode unik, kategori, satuan, deskripsi, dan QR Code otomatis (SVG). Dilengkapi fitur Trash (Soft Deletes), Restore, dan Force Delete.
-  - **Kategori & Satuan**: Pengelompokan barang dan definisi unit ukuran (misalnya: Pcs, Rim, Box).
-  - **Gudang & Lokasi**: Pengelolaan multi-gudang (Warehouse) dan detail rak penyimpanan barang.
-  - **Pihak Kesatu & Kedua**: Informasi instansi atau personil yang menyerahkan dan menerima barang.
-  - **Berita Acara Penyerahan (BAP) & Sumber Anggaran**: Dokumen referensi hukum transaksi dan asal dana barang.
+  - **Barang (Inventory)** — Pencatatan barang logistik kebencanaan dengan kode unik, kategori, satuan besar/kecil, harga, sumber anggaran, lokasi gudang, dan QR Code otomatis.
+  - **Kategori & Satuan** — Pengelompokan barang (Logistik Makanan, Peralatan SAR, Medis, dll) dan definisi unit ukuran.
+  - **Multi-Gudang** — Pengelolaan beberapa gudang (misal: Gudang Logistik Utama, Gudang Peralatan SAR).
+  - **Pihak Kesatu & Kedua** — Data instansi/personil yang menyerahkan dan menerima bantuan logistik.
+  - **Referensi BAP & Sumber Anggaran** — Nomor Berita Acara Pemeriksaan (misal: `300.2.2/BA.xxx/Darlog/2026`) dan asal anggaran (APBD/APBN/Hibah).
 - **Transaksi Logistik**:
-  - **Barang Masuk**: Pencatatan stok masuk beserta nomor referensi, asal anggaran, dan gudang tujuan.
-  - **Barang Keluar**: Pencatatan stok keluar beserta pencetakan Berita Acara Serah Terima (BAST).
-  - **Mutasi Stok**: Pemindahan barang antar gudang dengan alur persetujuan (Approval) pihak berwenang.
-- **Stock Opname**: Audit stok fisik secara berkala untuk mencocokkan stok sistem dengan stok riil di gudang.
+  - **Barang Masuk** — Pencatatan penerimaan logistik dari BNPB/pemasok dengan nomor referensi, tanggal, dan gudang.
+  - **Barang Keluar** — Pencatatan distribusi bantuan logistik ke kecamatan/desa terdampak bencana.
+  - **Cetak Berita Acara Serah Terima (BAST)** — Dokumen resmi PDF berformat surat dinas lengkap dengan KOP surat, logo BPBD, tanda tangan 3 pihak, dan tanggal terbilang.
+  - **Mutasi Stok** — Pemindahan logistik antar gudang dengan alur persetujuan (APPROVED/PENDING).
+- **Stock Opname** — Audit stok fisik berkala untuk mencocokkan stok sistem dengan kondisi riil di gudang.
 - **Pelaporan & Export**:
-  - Laporan stok barang, transaksi masuk/keluar, stock opname, dan mutasi gudang.
-  - Export data secara dinamis ke file **PDF** (via DomPDF) dan **Excel** (via Maatwebsite Excel).
-- **Manajemen Pengguna & Otorisasi**:
-  - Manajemen User, Jabatan, Bidang, serta Role.
-  - Role-based Access Control (RBAC) dengan 6 level pengguna bawaan: *Super Admin, Admin Logistik, Staff Gudang, Kepala Bidang (Kabid), Pimpinan, dan Operator Portal*.
-- **Log Aktivitas & Notifikasi**:
-  - Pencatatan otomatis log audit aktivitas user (seperti pembuatan, pengeditan, atau penghapusan data) menggunakan model Observers.
-  - Pusat notifikasi real-time untuk user.
+  - Laporan stok barang, transaksi, stock opname, dan mutasi gudang.
+  - Export ke **PDF** (barryvdh/laravel-dompdf) dengan KOP surat resmi dan logo.
+  - Export ke **Excel** (maatwebsite/excel) dengan KOP dan logo instansi.
+- **Manajemen Pengguna & RBAC**:
+  - Manajemen User, Jabatan, Bidang, Role, dan Hak Akses.
+  - 6 level pengguna: *Super Admin, Admin Logistik, Staff Gudang, Kepala Bidang, Pimpinan, Operator Portal*.
+  - Reset password oleh Super Admin ke password default.
+- **Log Aktivitas & Notifikasi** — Pencatatan otomatis semua aksi user dan pusat notifikasi real-time.
 
 ---
 
-## 🛠️ Tech Stack & Dependencies
+## 🛠️ Tech Stack
 
-- **Framework**: [Laravel 12.x](https://laravel.com)
-- **Runtime**: PHP >= 8.2
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) (via `@tailwindcss/vite`)
-- **Build Tool**: [Vite](https://vite.dev)
-- **Database**: MySQL / SQLite
-- **Dependencies Utama (Composer)**:
-  - `spatie/laravel-permission` — Mengatur hak akses & role.
-  - `barryvdh/laravel-dompdf` — Export laporan ke format PDF.
-  - `maatwebsite/excel` — Export laporan ke format Excel.
-  - `simplesoftwareio/simple-qrcode` — Membuat QR Code barang secara dinamis.
+| Lapisan | Teknologi |
+|:---|:---|
+| **Framework** | [Laravel 12.x](https://laravel.com) |
+| **Runtime** | PHP >= 8.2 |
+| **Frontend Styling** | Tailwind CSS (via CDN) + Alpine.js |
+| **Build Tool** | Vite |
+| **Database** | MySQL / MariaDB |
+| **Auth & RBAC** | [spatie/laravel-permission](https://github.com/spatie/laravel-permission) |
+| **Export PDF** | [barryvdh/laravel-dompdf](https://github.com/barryvdh/laravel-dompdf) |
+| **Export Excel** | [maatwebsite/excel](https://laravel-excel.com) |
+| **QR Code** | [simplesoftwareio/simple-qrcode](https://github.com/SimpleSoftwareIO/simple-qrcode) |
 
 ---
 
 ## ⚙️ Persyaratan Sistem
 
 Pastikan perangkat Anda sudah terpasang:
-- PHP >= 8.2 (dengan ekstensi `pdo`, `mbstring`, `openssl`, `gd`, `zip`)
-- Composer
-- Node.js & NPM
-- Database server (MySQL/MariaDB)
+
+- PHP >= 8.2 (dengan ekstensi: `pdo`, `pdo_mysql`, `mbstring`, `openssl`, `gd`, `zip`, `fileinfo`, `xml`)
+- [Composer](https://getcomposer.org)
+- [Node.js](https://nodejs.org) & NPM
+- MySQL / MariaDB (versi 8.0+)
 
 ---
 
 ## 💻 Panduan Instalasi Lokal
 
-### 1. Klon Repositori
+### 1. Clone Repositori
+
 ```bash
 git clone <repository-url>
 cd sidarlog
 ```
 
-### 2. Konfigurasi Lingkungan (Environment) & Setup
-Aplikasi menyediakan command setup instan via Composer untuk menginstal semua dependency dan mempersiapkan aplikasi:
+### 2. Instalasi Lengkap via Composer Script
+
 ```bash
 composer run setup
 ```
-*Script setup di atas akan melakukan:*
-- Pemasangan package Composer (`composer install`).
-- Penyalinan `.env.example` menjadi `.env` (jika belum ada).
-- Pembuatan Application Key (`php artisan key:generate`).
-- Migrasi database (`php artisan migrate --force`).
-- Instalasi package Node (`npm install`).
-- Build aset Frontend (`npm run build`).
+
+Script ini secara otomatis akan:
+1. Menginstal semua package PHP (`composer install`)
+2. Menyalin `.env.example` menjadi `.env`
+3. Membuat application key (`php artisan key:generate`)
+4. Menjalankan migrasi database (`php artisan migrate`)
+5. Menginstal package Node.js (`npm install`)
+6. Mem-build aset frontend (`npm run build`)
 
 ### 3. Konfigurasi Database
-Buka file `.env` yang baru dibuat di root project dan sesuaikan konfigurasi koneksi database Anda:
+
+Buka file `.env` dan sesuaikan koneksi database:
+
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=db_sidarlog
-DB_USERNAME=username_anda
-DB_PASSWORD=password_anda
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
-### 4. Seed Database (Data Awal & Pengguna Test)
-Jalankan seeder untuk mengisi data master awal, izin akses (permissions), dan akun-akun uji coba:
+### 4. Seed Database (Data Awal & Akun Pengguna)
+
 ```bash
 php artisan db:seed
 ```
 
----
+Atau jika ingin reset total (hapus semua data lama, migrasi ulang, seed):
 
-## 🔐 Akun Akses Uji Coba
+```bash
+php artisan migrate:fresh --seed
+```
 
-Gunakan kredensial berikut untuk masuk ke sistem setelah menjalankan perintah seeder (semua akun menggunakan password: `password`):
+### 5. Upload Logo Instansi
 
-| NIP | Nama Pengguna | Role | Email | Deskripsi |
-| :--- | :--- | :--- | :--- | :--- |
-| **1234567890** | Super Admin | `super_admin` | `admin@sidarlog.test` | Akses penuh sistem (bypass all gates) |
-| **1111111111** | Logistik Admin | `admin_logistik` | `andi@sidarlog.test` | Mengelola data logistik, transaksi, & laporan |
-| **2222222222** | Staff Gudang | `staff_gudang` | `budi@sidarlog.test` | Mencatat transaksi masuk/keluar & opname stok |
-| **3333333333** | Kabid Logistik | `kabid` | `citra@sidarlog.test` | Melakukan verifikasi/approve mutasi & melihat laporan |
-| **4444444444** | Pimpinan | `pimpinan` | `dedi@sidarlog.test` | Memantau dashboard & melihat laporan |
-| **5555555555** | Operator Portal | `operator_portal` | `eka@sidarlog.test` | Hak akses baca saja (viewer) |
+Letakkan file logo BPBD Kabupaten Tasikmalaya di:
+
+```
+public/img/logo-daerah.png
+```
+
+Logo ini akan tampil di semua dokumen PDF (BAST & laporan) serta di header Excel.
 
 ---
 
 ## 🏃 Menjalankan Aplikasi
 
-Aplikasi menyediakan script running concurrently yang menjalankan server lokal Laravel, antrean queue (untuk notifikasi/email), log watcher, dan Vite dev server secara bersamaan:
+### Mode Development (Semua Service Sekaligus)
 
 ```bash
 composer run dev
 ```
 
-Atau jika ingin menjalankannya secara terpisah:
-- **Server Web**: `php artisan serve`
-- **Vite Dev Server (Assets)**: `npm run dev`
-- **Queue Listener**: `php artisan queue:listen`
+Perintah ini menjalankan secara bersamaan:
+- `php artisan serve` — Server web Laravel
+- `php artisan queue:listen` — Worker antrian (notifikasi)
+- `php artisan pail` — Log watcher real-time
+- `npm run dev` — Vite dev server (hot reload aset)
+
+### Mode Manual
+
+```bash
+php artisan serve         # Server web → http://127.0.0.1:8000
+npm run dev               # Vite dev server (opsional)
+php artisan queue:listen  # Worker antrian (untuk notifikasi)
+```
+
+---
+
+## 🔐 Akun Akses Default
+
+Semua akun menggunakan password: **`password`**
+
+| NIP | Nama | Role | Hak Akses |
+|:---|:---|:---|:---|
+| `1234567890` | Administrator Utama | `super_admin` | Akses penuh semua fitur |
+| `1111111111` | Andi Logistikawan | `admin_logistik` | Kelola logistik, transaksi & laporan |
+| `2222222222` | Budi Gudang | `staff_gudang` | Catat transaksi masuk/keluar & opname |
+| `3333333333` | Citra Kabid | `kabid` | Verifikasi mutasi & lihat laporan |
+| `4444444444` | Dedi Pimpinan | `pimpinan` | Pantau dashboard & laporan |
+| `5555555555` | Eka Operator | `operator_portal` | Hak akses baca saja |
+
+> **Catatan:** Jika ada user yang lupa password, Super Admin dapat mereset ke password default dari menu **Sistem → Manajemen User → Reset Password**. Setelah login, user disarankan segera mengubah password via menu **Profil**.
+
+---
+
+## 📁 Struktur Direktori Penting
+
+```
+sidarlog/
+├── app/
+│   ├── Exports/              ← Kelas export Excel (Items, Transaksi, Opname, Mutasi)
+│   ├── Http/Controllers/     ← Controller aplikasi
+│   ├── Models/               ← Eloquent Models
+│   ├── Observers/            ← Auto-logging aktivitas user
+│   └── Services/             ← Business logic (TransactionService)
+├── database/
+│   ├── migrations/           ← Skema tabel database
+│   └── seeders/              ← Data awal & data dummy realistis BPBD
+├── public/
+│   └── img/                  ← Taruh logo-daerah.png di sini!
+├── resources/
+│   └── views/
+│       ├── layouts/          ← Layout utama (app.blade.php)
+│       ├── pages/            ← Halaman-halaman fitur
+│       └── reports/          ← Template PDF (bast, items, transactions, opname, mutasi)
+└── routes/
+    └── web.php               ← Definisi semua route
+```
+
+---
+
+## 📄 Informasi Institusi
+
+Dokumen PDF dan laporan resmi yang dihasilkan sistem menggunakan kop surat:
+
+```
+PEMERINTAH DAERAH KABUPATEN TASIKMALAYA
+BADAN PENANGGULANGAN BENCANA DAERAH
+Jl. Otto Iskandardinata No. 19 Tasikmalaya  Telp/Fax (0265) 334111
+Email: bpbd@tasikmalayakab.go.id  |  TASIKMALAYA - 46113
+```
+
+**Kepala Pelaksana:** RONI, A.Ks., M.M — NIP. 19690901 199303 1 004
+
+---
+
+## 📋 Lisensi & Keterangan
+
+Proyek ini dikembangkan sebagai bagian dari **Kerja Praktik** pada **BPBD Kabupaten Tasikmalaya**. Penggunaan, distribusi, dan modifikasi kode hanya untuk keperluan internal instansi.
+
+---
+
+<div align="center">
+  <em>Dikembangkan dengan ❤️ untuk BPBD Kabupaten Tasikmalaya — 2026</em>
+</div>
