@@ -199,6 +199,16 @@ sidarlog/
 
 ---
 
+## 👨‍💻 Pengembang
+
+Sistem ini dikembangkan oleh:
+- **Nama:** Asep Muhammad Ahlan Selan
+- **NIM:** 2303010189
+- **Program Studi:** Teknik Informatika
+- **Universitas:** Universitas Perjuangan Tasikmalaya
+
+---
+
 ## 📄 Informasi Institusi
 
 Dokumen PDF dan laporan resmi yang dihasilkan sistem menggunakan kop surat:
