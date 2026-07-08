@@ -25,22 +25,16 @@
             <table class="w-full text-left">
                 <thead class="bg-gray-50 dark:bg-navy-800/50">
                     <tr>
-                        <th class="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kode</th>
                         <th class="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nama Gudang</th>
                         <th class="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Lokasi</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
                         <th class="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
                     @forelse($warehouses as $wh)
                     <tr class="hover:bg-gray-50 dark:hover:bg-navy-800/30 transition-all duration-200">
-                        <td class="px-4 py-5 text-sm font-bold text-primary-600">{{ $wh->kode_gudang }}</td>
                         <td class="px-4 py-5 text-sm font-medium text-gray-900 dark:text-white">{{ $wh->nama_gudang }}</td>
                         <td class="px-4 py-5 text-sm text-gray-500">{{ $wh->lokasi ?? '-' }}</td>
-                        <td class="px-4 py-5">
-                            <span class="px-2 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded uppercase">Aktif</span>
-                        </td>
                         <td class="px-4 py-5 text-right space-x-2">
                             <button @click="editItem = {{ $wh->toJson() }}; openEdit = true" class="text-blue-600 hover:text-blue-800">
                                 <i class="fas fa-edit"></i>
@@ -56,7 +50,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-12 text-center text-gray-400 italic text-sm">Data gudang belum tersedia.</td>
+                        <td colspan="3" class="px-4 py-12 text-center text-gray-400 italic text-sm">Data gudang belum tersedia.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -68,10 +62,6 @@
     <x-modal title="Tambah Gudang Baru" x-show="openCreate">
         <form action="{{ route('gudang.store') }}" method="POST" class="space-y-4">
             @csrf
-            <div>
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Kode Gudang</label>
-                <input type="text" name="kode_gudang" required class="w-full px-4 py-2 border rounded-xl dark:bg-gray-900 dark:border-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none">
-            </div>
             <div>
                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Nama Gudang</label>
                 <input type="text" name="nama_gudang" required class="w-full px-4 py-2 border rounded-xl dark:bg-gray-900 dark:border-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none">

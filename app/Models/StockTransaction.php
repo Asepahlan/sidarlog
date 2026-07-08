@@ -16,11 +16,24 @@ class StockTransaction extends Model
         'reference_bap_id',
         'jenis',
         'jumlah_barang_kecil',
-        'jumlah_barang_besar',
         'penerima_penyerah',
         'keperluan',
         'keterangan',
-        'tgl_transaksi'
+        'tgl_transaksi',
+        'penerima_id',
+        'nomor_berita_acara',
+        'mode_tanggal',
+        'hari',
+        'tanggal',
+        'bulan',
+        'tahun',
+        'kecamatan',
+        'desa',
+        'catatan',
+        'penyerah_nama',
+        'penyerah_nip',
+        'penyerah_jabatan',
+        'penyerah_alamat',
     ];
 
     protected $casts = [
@@ -83,5 +96,15 @@ class StockTransaction extends Model
     public function referenceBap()
     {
         return $this->belongsTo(ReferenceBap::class, 'reference_bap_id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'penerima_id');
+    }
+
+    public function penerima()
+    {
+        return $this->receiver();
     }
 }

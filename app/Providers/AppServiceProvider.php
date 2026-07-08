@@ -29,6 +29,5 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Item::observe(\App\Observers\ItemObserver::class);
         \App\Models\StockTransaction::observe(\App\Observers\StockTransactionObserver::class);
         \App\Models\StockOpname::observe(\App\Observers\StockOpnameObserver::class);
-        \App\Models\StockMutation::observe(\App\Observers\StockMutationObserver::class);
     }
 }

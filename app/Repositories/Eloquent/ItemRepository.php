@@ -13,8 +13,7 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
     protected const DEFAULT_RELATIONS = [
         'kategori',
         'satuanKecil',
-        'satuanBesar',
-        'lokasiBarang',
+        'gudangPenyimpanan',
         'sumberAnggaran',
     ];
 
@@ -101,7 +100,7 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
     public function getLowStock()
     {
         return $this->model
-            ->with(['kategori', 'satuanKecil', 'lokasiBarang'])
+            ->with(['kategori', 'satuanKecil', 'gudangPenyimpanan'])
             ->whereRaw('stok_saat_ini_kecil <= stok_minimal')
             ->get();
     }
@@ -113,7 +112,7 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
     public function getNearExpiry(int $days = 30)
     {
         return $this->model
-            ->with(['kategori', 'satuanKecil', 'lokasiBarang'])
+            ->with(['kategori', 'satuanKecil', 'gudangPenyimpanan'])
             ->whereNotNull('tgl_kadaluarsa')
             ->whereBetween('tgl_kadaluarsa', [now(), now()->addDays($days)])
             ->get();

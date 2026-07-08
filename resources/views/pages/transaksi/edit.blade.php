@@ -1,16 +1,27 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Transaksi ' . ($jenis == 'masuk' ? 'Barang Masuk' : 'Barang Keluar'))
+@section('title', 'Edit Transaksi ' . ($jenis == 'masuk' ? 'Barang Masuk' : 'Barang Keluar'))
 
 @section('content')
 @php
-    $itemsData = $items->map(function($item) use ($warehouses) {
+    $itemsData = $items->map(function($item) use ($warehouses, $transaction) {
         $stocks = [];
         foreach ($warehouses as $wh) {
             $stocks[$wh->id] = [
                 'kecil' => $item->getStockKecilInWarehouse($wh->id),
             ];
         }
+
+        $totalStok = $item->stok_saat_ini_kecil ?? 0;
+        // Revert the current transaction's quantity to let the user see total stock levels before this edit
+        if ($item->id == $transaction->barang_id) {
+            if ($transaction->jenis === 'keluar') {
+                $totalStok += $transaction->jumlah_barang_kecil;
+            } elseif ($transaction->jenis === 'masuk') {
+                $totalStok = max(0, $totalStok - $transaction->jumlah_barang_kecil);
+            }
+        }
+
         return [
             'id' => $item->id,
             'nama_barang' => $item->nama_barang,
@@ -18,7 +29,7 @@
             'satuan_kecil' => $item->satuanKecil->nama_satuan ?? 'Pcs',
             'gudang_id' => $item->gudang_id,
             'stok_minimal' => $item->stok_minimal ?? 0,
-            'total_stok' => $item->stok_saat_ini_kecil ?? 0,
+            'total_stok' => $totalStok,
             'stocks' => $stocks
         ];
     });
@@ -33,13 +44,14 @@
     errorMessage: '',
     successMessage: '',
     mainFormError: '',
-    selectedPihakKedua: '{{ old('pihak_kedua_id') ?? '' }}',
-    penerimaLainnya: '{{ old('penerima_penyerah') ?? '' }}',
-    selectedItemId: '{{ old('barang_id') ?? '' }}',
-    selectedWarehouseId: '{{ old('gudang_id', $warehouses->first()->id ?? '') }}',
-    jumlahKecil: {{ old('jumlah_barang_kecil') ?? 0 }},
+    selectedPihakKedua: '{{ old('pihak_kedua_id', $transaction->pihak_kedua_id) ?? '' }}',
+    selectedItemId: '{{ old('barang_id', $transaction->barang_id) ?? '' }}',
+    selectedWarehouseId: '{{ old('gudang_id', $transaction->gudang_id) ?? '' }}',
+    jumlahKecil: {{ old('jumlah_barang_kecil', $transaction->jumlah_barang_kecil) ?? 0 }},
     items: {{ json_encode($itemsData) }},
-    selectedPenerimaVal: '{{ old('pihak_kesatu_id') ? 'first_party:'.old('pihak_kesatu_id') : (old('penerima_id') ? 'user:'.old('penerima_id') : '') }}',
+    selectedPenerimaVal: '{{ old('pihak_kesatu_id', $transaction->pihak_kesatu_id) ? 'first_party:'.$transaction->pihak_kesatu_id : (old('penerima_id', $transaction->penerima_id) ? 'user:'.$transaction->penerima_id : '') }}',
+    searchQuery: '',
+    showDropdown: false,
 
     get selectedItem() {
         return this.items.find(i => i.id == this.selectedItemId) || null;
@@ -53,12 +65,10 @@
         return this.jumlahKecil > (this.selectedItem ? this.selectedItem.total_stok : 0);
     },
     init() {
-        // Auto-switch gudang ke gudang_id item saat memilih barang
         this.$watch('selectedItemId', value => {
             const item = this.items.find(i => i.id == value);
             if (item) {
                 if ('{{ $jenis }}' === 'keluar') {
-                    // Temukan gudang pertama yang memiliki stok > 0
                     const warehouseWithStock = Object.keys(item.stocks).find(whId => item.stocks[whId].kecil > 0);
                     if (warehouseWithStock) {
                         this.selectedWarehouseId = warehouseWithStock;
@@ -68,11 +78,6 @@
                 if (item.gudang_id) {
                     this.selectedWarehouseId = item.gudang_id;
                 }
-            }
-        });
-        this.$watch('selectedPihakKedua', value => {
-            if (value !== '') {
-                this.penerimaLainnya = '';
             }
         });
     },
@@ -114,7 +119,6 @@
                 select.add(option);
 
                 this.selectedPihakKedua = res.data.id;
-                this.penerimaLainnya = '';
 
                 this.newParty = { nama_pihak: '', instansi: '', jabatan: '', alamat: '', no_telp: '' };
                 this.openQuickAddParty = false;
@@ -203,8 +207,8 @@
                 <i class="fas {{ $jenis == 'masuk' ? 'fa-arrow-down-long text-xl' : 'fa-arrow-up-long text-xl' }}"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Tambah Transaksi {{ $jenis == 'masuk' ? 'Barang Masuk' : 'Barang Keluar' }}</h1>
-                <p class="text-gray-500 dark:text-gray-400 mt-1">Input data mutasi barang {{ $jenis }} ke sistem secara akurat.</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Edit Transaksi {{ $jenis == 'masuk' ? 'Barang Masuk' : 'Barang Keluar' }}</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-1">Ubah data mutasi barang {{ $jenis }} dalam sistem.</p>
             </div>
         </div>
         <a href="{{ route('barang-' . $jenis . '.index') }}" class="inline-flex items-center px-4 py-2.5 bg-gray-150 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all text-xs border border-gray-200/50 dark:border-gray-700/50">
@@ -233,8 +237,8 @@
             <i class="fas fa-exclamation-circle text-lg"></i>
             <strong class="font-bold">Gagal menyimpan!</strong>
         </div>
-        <ul class="mt-2 list-disc list-inside text-sm pl-2 space-y-1">
-            @foreach($errors->all() as $error)
+        <ul class="mt-2 list-disc list-inside text-xs space-y-1">
+            @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
@@ -244,7 +248,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <!-- Main Form (Col span 2) -->
         <div class="lg:col-span-2">
-            <form action="{{ route('barang-' . $jenis . '.store') }}" method="POST"
+            <form action="{{ route('barang-' . $jenis . '.update', $transaction->id) }}" method="POST"
                   @submit="
                       if (!selectedItemId) {
                           $event.preventDefault();
@@ -260,12 +264,13 @@
                           window.scrollTo({top: 0, behavior: 'smooth'});
                       } else if ('{{ $jenis }}' === 'keluar' && isStockInsufficient) {
                           $event.preventDefault();
-                          mainFormError = 'Stok di gudang tidak mencukupi untuk melakukan transaksi keluar ini.';
+                          mainFormError = 'Stok tidak mencukupi untuk melakukan transaksi keluar ini.';
                           window.scrollTo({top: 0, behavior: 'smooth'});
                       }
                   "
                   class="space-y-6">
                 @csrf
+                @method('PUT')
                 <input type="hidden" name="jenis" value="{{ $jenis }}">
 
                 <!-- Card 1: Barang & Lokasi -->
@@ -276,35 +281,28 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="flex flex-col gap-1.5" x-data="{ showDropdown: false, searchQuery: '' }" @click.away="showDropdown = false">
+                        <div class="flex flex-col gap-1.5" x-data="{ showDropdown: false, searchQuery: '' }">
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Barang <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <!-- Trigger Button -->
                                 <button type="button" @click="showDropdown = !showDropdown"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-left text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all">
-                                    <span x-text="selectedItem ? selectedItem.kode_barang + ' - ' + selectedItem.nama_barang : 'Pilih Barang'"></span>
-                                    <i class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200" :class="showDropdown ? 'rotate-180' : ''"></i>
+                                        class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-left text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none flex justify-between items-center transition-all">
+                                    <span x-text="selectedItem ? `${selectedItem.kode_barang} - ${selectedItem.nama_barang}` : 'Pilih Barang'"></span>
+                                    <i class="fas fa-chevron-down text-xs text-gray-400"></i>
                                 </button>
-
-                                <!-- Hidden input to submit the selected ID -->
                                 <input type="hidden" name="barang_id" :value="selectedItemId">
 
-                                <!-- Dropdown List -->
-                                <div x-show="showDropdown" x-cloak x-transition
-                                     class="absolute z-50 w-full mt-2 bg-white dark:bg-navy-950 border border-gray-150 dark:border-gray-800 rounded-2xl shadow-xl max-h-64 overflow-hidden flex flex-col">
-
-                                    <!-- Search Input -->
-                                    <div class="p-2.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-navy-900/50 relative">
-                                        <span class="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none text-gray-400">
-                                            <i class="fas fa-search text-xs"></i>
-                                        </span>
-                                        <input type="text" x-model="searchQuery" placeholder="Cari nama atau kode barang..."
-                                               class="w-full pl-8 pr-4 py-2 bg-white dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+                                <!-- Dropdown Card -->
+                                <div x-show="showDropdown" @click.away="showDropdown = false"
+                                     class="absolute z-50 w-full mt-2 bg-white dark:bg-navy-950 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden" x-cloak>
+                                    <div class="p-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-navy-900/50">
+                                        <div class="relative">
+                                            <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"></i>
+                                            <input type="text" x-model="searchQuery" placeholder="Cari nama atau kode barang..."
+                                                   class="w-full pl-8 pr-4 py-2 bg-white dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all">
+                                        </div>
                                     </div>
-
-                                    <!-- Options Container -->
-                                    <div class="overflow-y-auto flex-1 max-h-48 divide-y divide-gray-50/50 dark:divide-gray-800/50">
-                                        <!-- Loop -->
+                                    <div class="max-h-60 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800">
                                         <template x-for="item in items.filter(i => !searchQuery || i.nama_barang.toLowerCase().includes(searchQuery.toLowerCase()) || i.kode_barang.toLowerCase().includes(searchQuery.toLowerCase()))" :key="item.id">
                                             <button type="button" @click="selectedItemId = item.id; searchQuery = ''; showDropdown = false"
                                                     class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-navy-900/50 transition-colors flex flex-col"
@@ -326,7 +324,7 @@
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">{{ $jenis == 'masuk' ? 'Gudang Tujuan' : 'Gudang Asal' }} <span class="text-red-500">*</span></label>
                             <select name="gudang_id" required x-model="selectedWarehouseId" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all">
                                 @foreach($warehouses as $wh)
-                                    <option value="{{ $wh->id }}" {{ old('gudang_id', $warehouses->first()->id ?? '') == $wh->id ? 'selected' : '' }}>{{ $wh->nama_gudang }}</option>
+                                    <option value="{{ $wh->id }}">{{ $wh->nama_gudang }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -335,7 +333,7 @@
                     <div class="grid grid-cols-1 gap-5">
                         <div class="flex flex-col gap-1.5">
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Tanggal & Waktu Transaksi <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" name="tgl_transaksi" value="{{ old('tgl_transaksi', now()->format('Y-m-d\TH:i')) }}" required class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all">
+                            <input type="datetime-local" name="tgl_transaksi" value="{{ old('tgl_transaksi', $transaction->tgl_transaksi ? $transaction->tgl_transaksi->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" required class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all">
                         </div>
                     </div>
                 </div>
@@ -371,7 +369,7 @@
                             <select name="pihak_kesatu_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all">
                                 <option value="">Pilih Pihak Pertama</option>
                                 @foreach($firstParties as $party)
-                                    <option value="{{ $party->id }}" {{ old('pihak_kesatu_id') == $party->id ? 'selected' : '' }}>{{ $party->nama_pihak }} — {{ $party->jabatan }}</option>
+                                    <option value="{{ $party->id }}" {{ old('pihak_kesatu_id', $transaction->pihak_kesatu_id) == $party->id ? 'selected' : '' }}>{{ $party->nama_pihak }} — {{ $party->jabatan }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -381,7 +379,7 @@
                                 <select name="pihak_kedua_id" id="pihak_kedua_select" x-model="selectedPihakKedua" class="flex-grow min-w-0 px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all">
                                     <option value="">Pilih Pihak Kedua</option>
                                     @foreach($secondParties as $party)
-                                        <option value="{{ $party->id }}" {{ old('pihak_kedua_id') == $party->id ? 'selected' : '' }}>{{ $party->nama_pihak }} — {{ $party->instansi }}</option>
+                                        <option value="{{ $party->id }}" {{ old('pihak_kedua_id', $transaction->pihak_kedua_id) == $party->id ? 'selected' : '' }}>{{ $party->nama_pihak }} — {{ $party->instansi }}</option>
                                     @endforeach
                                 </select>
                                 <button type="button" @click="openQuickAddParty = true" class="flex-shrink-0 px-3.5 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white font-bold transition-all shadow-md shadow-orange-500/20 flex items-center justify-center" title="Quick Add Pihak Kedua">
@@ -401,12 +399,12 @@
                                     <option value="">Pilih Penerima</option>
                                     <optgroup label="User Aktif">
                                         @foreach($users as $user)
-                                            <option value="user:{{ $user->id }}" {{ (old('penerima_id') == $user->id) ? 'selected' : '' }}>{{ $user->nama_lengkap }} — {{ optional($user->jabatan)->nama_jabatan }}</option>
+                                            <option value="user:{{ $user->id }}" {{ (old('penerima_id', $transaction->penerima_id) == $user->id) ? 'selected' : '' }}>{{ $user->nama_lengkap }} — {{ optional($user->jabatan)->nama_jabatan }}</option>
                                         @endforeach
                                     </optgroup>
                                     <optgroup id="penerima_first_party_group" label="Pihak Kesatu (Master Data)">
                                         @foreach($firstParties as $party)
-                                            <option value="first_party:{{ $party->id }}" {{ (old('pihak_kesatu_id') == $party->id) ? 'selected' : '' }}>{{ $party->nama_pihak }} — {{ $party->jabatan }}</option>
+                                            <option value="first_party:{{ $party->id }}" {{ (old('pihak_kesatu_id', $transaction->pihak_kesatu_id) == $party->id) ? 'selected' : '' }}>{{ $party->nama_pihak }} — {{ $party->jabatan }}</option>
                                         @endforeach
                                     </optgroup>
                                 </select>
@@ -419,7 +417,7 @@
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Nama Pengirim <span class="text-red-500">*</span></label>
-                            <input type="text" name="penerima_penyerah" required maxlength="100" value="{{ old('penerima_penyerah') }}"
+                            <input type="text" name="penerima_penyerah" required maxlength="100" value="{{ old('penerima_penyerah', $transaction->penerima_penyerah) }}"
                                    class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                                    placeholder="Masukkan nama pengirim barang">
                         </div>
@@ -428,14 +426,14 @@
 
                     <div class="flex flex-col gap-1.5">
                         <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Nomor Berita Acara (BAP)</label>
-                        <input type="text" name="nomor_berita_acara" value="{{ old('nomor_berita_acara') }}"
+                        <input type="text" name="nomor_berita_acara" value="{{ old('nomor_berita_acara', $transaction->nomor_berita_acara) }}"
                                class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                                placeholder="Contoh: 300.2.2/BA.001/Darlog/2026 (opsional)">
                     </div>
 
                     <div class="flex flex-col gap-1.5">
                         <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Keterangan Tambahan</label>
-                        <textarea name="keterangan" rows="3" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all" placeholder="Catatan tambahan untuk transaksi ini...">{{ old('keterangan') }}</textarea>
+                        <textarea name="keterangan" rows="3" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-950 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-all" placeholder="Catatan tambahan untuk transaksi ini...">{{ old('keterangan', $transaction->keterangan) }}</textarea>
                     </div>
                 </div>
 
@@ -445,7 +443,7 @@
                     <button type="submit"
                             class="px-8 py-3 font-bold rounded-2xl text-white shadow-lg transition-all transform active:scale-95 text-xs flex items-center gap-2"
                             :class="isStockInsufficient ? 'bg-gray-400 cursor-not-allowed shadow-none' : '{{ $jenis == 'masuk' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/30' : 'bg-orange-600 hover:bg-orange-700 shadow-orange-500/30' }}'">
-                        <i class="fas fa-save"></i> Simpan Transaksi
+                        <i class="fas fa-save"></i> Simpan Perubahan
                     </button>
                 </div>
             </form>
@@ -541,16 +539,16 @@
                 <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-2.5 leading-relaxed">
                     <li class="flex gap-2">
                         <span class="font-bold text-gray-700 dark:text-gray-300">•</span>
-                        <span>Pilih **Barang** dan **Gudang** yang tepat agar penambahan/pengurangan stok tercatat pada lokasi fisik yang sesuai.</span>
+                        <span>Ubah detail **Barang** atau **Gudang** jika terjadi kesalahan pencatatan awal.</span>
                     </li>
                     <li class="flex gap-2">
                         <span class="font-bold text-gray-700 dark:text-gray-300">•</span>
-                        <span>Input **Jumlah** sesuai transaksi fisik yang dilakukan.</span>
+                        <span>Stok barang akan disesuaikan secara otomatis di latar belakang oleh sistem setelah perubahan disimpan.</span>
                     </li>
                     @if($jenis == 'keluar')
                     <li class="flex gap-2">
                         <span class="font-bold text-gray-700 dark:text-gray-300">•</span>
-                        <span>Pastikan data **Pihak Kedua (Penerima)** sesuai untuk tanda tangan Berita Acara Serah Terima (BAST).</span>
+                        <span>Pastikan data **Pihak Kedua (Penerima)** sesuai untuk kebutuhan Berita Acara Serah Terima (BAST).</span>
                     </li>
                     @endif
                 </ul>

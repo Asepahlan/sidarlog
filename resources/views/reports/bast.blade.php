@@ -4,86 +4,194 @@
     <meta charset="utf-8">
     <title>Berita Acara Serah Terima Barang - {{ $transaction->no_referensi }}</title>
     <style>
-        @page { margin: 2cm 2.5cm; }
-        * { box-sizing: border-box; }
+        @page { 
+            margin: 1.2cm 2cm; 
+        }
+        * { 
+            box-sizing: border-box; 
+        }
         body {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 12pt;
-            line-height: 1.5;
+            font-size: 11pt;
+            line-height: 1.4;
             color: #000;
             margin: 0;
             padding: 0;
         }
 
-        /* ─── KOP ─── */
-        .kop-table { width: 100%; border-collapse: collapse; }
-        .kop-logo-cell { width: 90px; vertical-align: middle; text-align: center; }
-        .kop-logo { width: 80px; height: auto; }
-        .kop-logo-placeholder .logo-circle {
-            width: 75px; height: 75px; border-radius: 50%;
-            background: #1e3a5f; display: flex; align-items: center;
-            justify-content: center; margin: 0 auto;
+        /* ─── KOP SURAT ─── */
+        .kop-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 5px;
         }
-        .kop-text-cell { vertical-align: middle; text-align: center; padding: 4px 0; }
-        .kop-instansi-atas { font-size: 12pt; font-weight: normal; }
-        .kop-instansi-nama { font-size: 16pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .kop-instansi-info { font-size: 9.5pt; margin-top: 1px; }
-        .kop-divider { margin-top: 6px; }
+        .kop-logo-cell { 
+            width: 80px; 
+            vertical-align: middle; 
+            text-align: center; 
+        }
+        .kop-logo { 
+            width: 70px; 
+            height: auto; 
+        }
+        .kop-text-cell { 
+            vertical-align: middle; 
+            text-align: center; 
+            padding-right: 40px; /* offset logo width to center text */
+        }
+        .kop-instansi-atas { 
+            font-size: 13pt; 
+            font-weight: bold; 
+            letter-spacing: 0.5px;
+        }
+        .kop-instansi-nama { 
+            font-size: 14pt; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            margin-top: 2px;
+        }
+        .kop-instansi-alamat { 
+            font-size: 9pt; 
+            margin-top: 3px;
+        }
+        .kop-instansi-email { 
+            font-size: 9pt; 
+            margin-top: 1px;
+        }
+        .kop-divider { 
+            border-top: 3px solid #000; 
+            border-bottom: 1px solid #000; 
+            height: 2px; 
+            margin-top: 5px; 
+            margin-bottom: 15px;
+        }
 
-        /* ─── TITLE ─── */
-        .title-box { text-align: center; margin: 16px 0 14px; }
+        /* ─── JUDUL DOKUMEN ─── */
+        .title-box { 
+            text-align: center; 
+            margin-bottom: 15px; 
+        }
         .title-box h3 {
-            margin: 0 0 4px;
-            font-size: 13pt;
+            margin: 0 0 2px;
+            font-size: 12pt;
             text-transform: uppercase;
             text-decoration: underline;
-            letter-spacing: 1px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
         }
-        .title-box .nomor { font-size: 11pt; margin: 0; }
+        .title-box .nomor { 
+            font-size: 11pt; 
+            margin: 0; 
+        }
 
-        /* ─── OPENING ─── */
-        .opening { margin-bottom: 14px; text-align: justify; font-size: 12pt; }
+        /* ─── PARAGRAF PEMBUKA ─── */
+        .opening { 
+            margin-bottom: 12px; 
+            text-align: justify; 
+            text-indent: 0px;
+        }
 
-        /* ─── PARTIES ─── */
-        .parties { margin-bottom: 14px; }
-        .party-table { width: 100%; border-collapse: collapse; }
-        .party-table td { padding: 2px 0; vertical-align: top; font-size: 12pt; }
-        .col-label  { width: 110px; }
-        .col-dots   { width: 15px; }
-        .col-value  { }
-        .party-label-roman { font-weight: normal; }
-        .selanjutnya { margin: 6px 0 12px 125px; font-size: 12pt; }
+        /* ─── PIHAK-PIHAK ─── */
+        .parties { 
+            margin-bottom: 10px; 
+            padding-left: 10px;
+        }
+        .party-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 5px;
+        }
+        .party-table td { 
+            padding: 2px 0; 
+            vertical-align: top; 
+        }
+        .col-num {
+            width: 25px;
+            font-weight: bold;
+        }
+        .col-label { 
+            width: 90px; 
+        }
+        .col-dots { 
+            width: 15px; 
+        }
+        .col-value { 
+            font-weight: normal;
+        }
+        .selanjutnya { 
+            margin: 2px 0 10px 130px; 
+            font-weight: bold; 
+        }
 
-        /* ─── TABLE ─── */
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        /* ─── PENYERAHAN SENTENCE ─── */
+        .closing-sentence {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+
+        /* ─── TABEL BARANG ─── */
+        .items-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 15px; 
+        }
         .items-table th, .items-table td {
             border: 1px solid #000;
             padding: 5px 8px;
-            font-size: 11pt;
+            font-size: 10pt;
+            vertical-align: middle;
         }
-        .items-table thead tr { background: #e8e8e8; }
-        .items-table th { text-align: center; font-weight: bold; }
-        .text-center { text-align: center; }
+        .items-table th { 
+            text-align: center; 
+            font-weight: bold; 
+            background-color: #f2f2f2;
+        }
+        .text-center { 
+            text-align: center; 
+        }
 
-        /* ─── CLOSING ─── */
-        .closing { margin-bottom: 10px; text-align: justify; font-size: 12pt; }
+        /* ─── PARAGRAF PENUTUP ─── */
+        .closing-desc { 
+            margin-bottom: 15px; 
+            text-align: justify; 
+        }
 
-        /* ─── SIGNATURE ─── */
-        .sig-section { margin-top: 30px; width: 100%; }
-        .sig-table { width: 100%; border-collapse: collapse; }
-        .sig-table td { width: 50%; vertical-align: top; text-align: center; border: none; padding: 0 10px; }
-        .sig-name { margin-top: 55px; font-weight: bold; }
-        .sig-name .underline { text-decoration: underline; }
-        .sig-nip { font-size: 11pt; }
+        /* ─── TANDA TANGAN (SIGNATURES) ─── */
+        .sig-section { 
+            width: 100%; 
+            margin-top: 15px;
+        }
+        .sig-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+        .sig-table td { 
+            width: 50%; 
+            vertical-align: top; 
+            text-align: center; 
+            padding: 0 15px; 
+        }
+        .sig-space {
+            height: 55px;
+        }
+        .sig-name { 
+            font-weight: bold; 
+            text-decoration: underline;
+        }
+        .sig-nip { 
+            margin-top: 2px;
+        }
 
-        .know-section { margin-top: 30px; text-align: center; }
-        .know-section .sig-name { margin-top: 55px; }
+        .know-section { 
+            margin-top: 20px; 
+            text-align: center; 
+        }
     </style>
 </head>
 <body>
 
-    {{-- ═══ KOP SURAT ═══ --}}
     @php
+        // Logo BPBD Daerah Tasikmalaya
         $logoSrc  = null;
         $logoPath = public_path('img/logo-daerah.png');
         if (file_exists($logoPath)) {
@@ -92,181 +200,197 @@
             $logoSrc = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
         }
 
-        // Tanggal transaksi
-        $tgl = $transaction->tgl_transaksi instanceof \Carbon\Carbon
-             ? $transaction->tgl_transaksi
-             : \Carbon\Carbon::parse($transaction->tgl_transaksi);
+        // Ambil data BAST dari record database jika diisi
+        $modeTanggal = $transaction->mode_tanggal ?? 'otomatis';
+        $namaHari = $transaction->hari ?? '............';
+        $tglText = $transaction->tanggal ?? '............';
+        $namaBulan = $transaction->bulan ?? '............';
+        $tahunText = $transaction->tahun ?? '............';
 
-        // Hari dalam bahasa Indonesia
-        $hariMap = [
-            'Monday'    => 'Senin',    'Tuesday'  => 'Selasa',
-            'Wednesday' => 'Rabu',     'Thursday' => 'Kamis',
-            'Friday'    => 'Jumat',    'Saturday' => 'Sabtu',
-            'Sunday'    => 'Minggu',
-        ];
-        $namaHari = $hariMap[$tgl->format('l')] ?? $tgl->format('l');
+        if ($modeTanggal === 'otomatis') {
+            $tgl = $transaction->tgl_transaksi instanceof \Carbon\Carbon
+                 ? $transaction->tgl_transaksi
+                 : \Carbon\Carbon::parse($transaction->tgl_transaksi);
 
-        // Bulan dalam bahasa Indonesia
-        $bulanMap = [
-            1=>'Januari', 2=>'Februari', 3=>'Maret', 4=>'April',
-            5=>'Mei', 6=>'Juni', 7=>'Juli', 8=>'Agustus',
-            9=>'September', 10=>'Oktober', 11=>'November', 12=>'Desember',
-        ];
-        $namaBulan = $bulanMap[(int)$tgl->format('n')];
+            $hariMap = [
+                'Monday'    => 'Senin',    'Tuesday'  => 'Selasa',
+                'Wednesday' => 'Rabu',     'Thursday' => 'Kamis',
+                'Friday'    => 'Jumat',    'Saturday' => 'Sabtu',
+                'Sunday'    => 'Minggu',
+            ];
+            $namaHari = $hariMap[$tgl->format('l')] ?? $tgl->format('l');
 
-        // Tahun dalam huruf
-        $tahunNum  = (int)$tgl->format('Y');
-        $tahunMap = [
-            2020 => 'Dua Ribu Dua Puluh',
-            2021 => 'Dua Ribu Dua Puluh Satu',
-            2022 => 'Dua Ribu Dua Puluh Dua',
-            2023 => 'Dua Ribu Dua Puluh Tiga',
-            2024 => 'Dua Ribu Dua Puluh Empat',
-            2025 => 'Dua Ribu Dua Puluh Lima',
-            2026 => 'Dua Ribu Dua Puluh Enam',
-            2027 => 'Dua Ribu Dua Puluh Tujuh',
-            2028 => 'Dua Ribu Dua Puluh Delapan',
-            2029 => 'Dua Ribu Dua Puluh Sembilan',
-            2030 => 'Dua Ribu Tiga Puluh',
-        ];
-        $tahunText = $tahunMap[$tahunNum] ?? (string)$tahunNum;
+            $bulanMap = [
+                1=>'Januari', 2=>'Februari', 3=>'Maret', 4=>'April',
+                5=>'Mei', 6=>'Juni', 7=>'Juli', 8=>'Agustus',
+                9=>'September', 10=>'Oktober', 11=>'November', 12=>'Desember',
+            ];
+            $namaBulan = $bulanMap[(int)$tgl->format('n')];
 
-        // Terbilang tanggal
-        $terbilangMap = [
-            1 => 'Satu', 2 => 'Dua', 3 => 'Tiga', 4 => 'Empat', 5 => 'Lima',
-            6 => 'Enam', 7 => 'Tujuh', 8 => 'Delapan', 9 => 'Sembilan', 10 => 'Sepuluh',
-            11 => 'Sebelas', 12 => 'Dua Belas', 13 => 'Tiga Belas', 14 => 'Empat Belas', 15 => 'Lima Belas',
-            16 => 'Enam Belas', 17 => 'Tujuh Belas', 18 => 'Delapan Belas', 19 => 'Sembilan Belas', 20 => 'Dua Puluh',
-            21 => 'Dua Puluh Satu', 22 => 'Dua Puluh Dua', 23 => 'Dua Puluh Tiga', 24 => 'Dua Puluh Empat', 25 => 'Dua Puluh Lima',
-            26 => 'Dua Puluh Enam', 27 => 'Dua Puluh Tujuh', 28 => 'Dua Puluh Delapan', 29 => 'Dua Puluh Sembilan', 30 => 'Tiga Puluh',
-            31 => 'Tiga Puluh Satu'
-        ];
-        $tglText = $terbilangMap[(int)$tgl->format('d')] ?? $tgl->format('d');
+            $tahunNum  = (int)$tgl->format('Y');
+            $tahunMap = [
+                2020 => 'Dua Ribu Dua Puluh',
+                2021 => 'Dua Ribu Dua Puluh Satu',
+                2022 => 'Dua Ribu Dua Puluh Dua',
+                2023 => 'Dua Ribu Dua Puluh Tiga',
+                2024 => 'Dua Ribu Dua Puluh Empat',
+                2025 => 'Dua Ribu Dua Puluh Lima',
+                2026 => 'Dua Ribu Dua Puluh Enam',
+                2027 => 'Dua Ribu Dua Puluh Tujuh',
+                2028 => 'Dua Ribu Dua Puluh Delapan',
+                2029 => 'Dua Ribu Dua Puluh Sembilan',
+                2030 => 'Dua Ribu Tiga Puluh',
+            ];
+            $tahunText = $tahunMap[$tahunNum] ?? (string)$tahunNum;
 
-        // Nomor BA
-        $nomorBA = $transaction->referenceBap?->nomor_ba ?? $transaction->no_referensi;
+            $terbilangMap = [
+                1 => 'Satu', 2 => 'Dua', 3 => 'Tiga', 4 => 'Empat', 5 => 'Lima',
+                6 => 'Enam', 7 => 'Tujuh', 8 => 'Delapan', 9 => 'Sembilan', 10 => 'Sepuluh',
+                11 => 'Sebelas', 12 => 'Dua Belas', 13 => 'Tiga Belas', 14 => 'Empat Belas', 15 => 'Lima Belas',
+                16 => 'Enam Belas', 17 => 'Tujuh Belas', 18 => 'Delapan Belas', 19 => 'Sembilan Belas', 20 => 'Dua Puluh',
+                21 => 'Dua Puluh Satu', 22 => 'Dua Puluh Dua', 23 => 'Dua Puluh Tiga', 24 => 'Dua Puluh Empat', 25 => 'Dua Puluh Lima',
+                26 => 'Dua Puluh Enam', 27 => 'Dua Puluh Tujuh', 28 => 'Dua Puluh Delapan', 29 => 'Dua Puluh Sembilan', 30 => 'Tiga Puluh',
+                31 => 'Tiga Puluh Satu'
+            ];
+            $tglText = $terbilangMap[(int)$tgl->format('d')] ?? $tgl->format('d');
+        }
 
-        // Pihak I (penyerah)
-        $pihakI       = $transaction->pihakKesatu;
-        $namaPI       = $pihakI?->nama_pihak   ?? '......................................';
-        $nipPI        = $pihakI?->nip           ?? '......................................';
-        $jabatanPI    = $pihakI?->jabatan       ?? '......................................';
+        // Format nomor berita acara
+        $nomorBA = $transaction->nomor_berita_acara 
+            ?? ($transaction->referenceBap?->nomor_ba ?? '300.2.2/BA.             /Darlog/2026');
 
-        // Pihak II (penerima)
-        $pihakII      = $transaction->pihakKedua;
-        $namaPII      = $pihakII?->nama_pihak   ?? ($transaction->penerima_penyerah ?? '......................................');
-        $nipPII       = $pihakII?->nip          ?? '-';
-        $jabatanPII   = $pihakII?->jabatan      ?? '-';
-        $alamatPII    = $pihakII?->instansi     ?? '......................................';
+        // Pihak I (Yang Menyerahkan) — selalu dari input manual
+        $namaPI    = $transaction->penyerah_nama    ?? '......................................';
+        $nipPI     = $transaction->penyerah_nip     ?? '-';
+        $jabatanPI = $transaction->penyerah_jabatan ?? '......................................';
+        $alamatPI  = $transaction->penyerah_alamat  ?? '......................................';
 
-        // Keperluan (dari keterangan atau kosong)
-        $keperluan    = $transaction->keterangan ?? '..........................................................................';
-        $desaKec      = $pihakII?->instansi     ?? '...............................................';
+        if ($transaction->jenis === 'masuk') {
+            // Pihak II (Yang Menerima) = Petugas BPBD
+            $penerimaUser = $transaction->penerima;
+            $pihakI = $transaction->pihakKesatu;
+            $namaPII    = $penerimaUser?->nama_lengkap ?? $penerimaUser?->name ?? ($pihakI?->nama_pihak ?? 'Petugas BPBD');
+            $nipPII     = $penerimaUser?->nip ?? ($pihakI?->nip ?? '-');
+            $jabatanPII = $penerimaUser?->jabatan->nama_jabatan ?? ($pihakI?->jabatan ?? 'Staf BPBD');
+            $alamatPII  = $pihakI?->instansi ?? 'BPBD Kabupaten Tasikmalaya';
+        } else {
+            // Pihak II (Yang Menerima) = Pihak Kedua / Penerima Bantuan
+            $pihakII    = $transaction->pihakKedua;
+            $namaPII    = $pihakII?->nama_pihak ?? ($transaction->penerima_penyerah ?? '......................................');
+            $nipPII     = $pihakII?->nip ?? '-';
+            $jabatanPII = $pihakII?->jabatan ?? '-';
+            $alamatPII  = $pihakII?->instansi ?? '......................................';
+        }
+
+        // Kecamatan & Desa
+        $desa      = $transaction->desa      ?? '......................................';
+        $kecamatan = $transaction->kecamatan ?? '......................................';
+        $catatan   = $transaction->catatan   ?? '....................................................................';
+
+        // Mengetahui (Kepala Pelaksana BPBD)
+        $kepalaPelaksana = \App\Models\FirstParty::where('jabatan', 'like', '%Kepala Pelaksana%')->first();
+        $namaKP = $kepalaPelaksana?->nama_pihak ?? 'RONI, A.Ks., M.M';
+        $nipKP  = $kepalaPelaksana?->nip ?? '19690901 199303 1 004';
     @endphp
 
+
+    {{-- KOP SURAT --}}
     <table class="kop-table">
         <tr>
             <td class="kop-logo-cell">
                 @if($logoSrc)
                     <img src="{{ $logoSrc }}" class="kop-logo" alt="Logo">
                 @else
-                    <div class="kop-logo-placeholder">
-                        <div class="logo-circle">
-                            <span style="font-size:22pt; color:#fff;">⚙</span>
-                        </div>
-                    </div>
+                    <div style="font-size:24pt; font-weight:bold;">[LOGO]</div>
                 @endif
             </td>
             <td class="kop-text-cell">
                 <div class="kop-instansi-atas">PEMERINTAH DAERAH KABUPATEN TASIKMALAYA</div>
                 <div class="kop-instansi-nama">BADAN PENANGGULANGAN BENCANA DAERAH</div>
-                <div class="kop-instansi-info">Jl. Otto Iskandardinata No. 19 Tasikmalaya Telp dan Fax (0265) 334111</div>
-                <div class="kop-instansi-info">Email: bpbd@tasikmalayakab.go.id &nbsp;|&nbsp; TASIKMALAYA - 46113</div>
+                <div class="kop-instansi-alamat">Jl. Otto Iskandardinata No. 19 Tasikmalaya Telp dan Fax (0265) 334111</div>
+                <div class="kop-instansi-email">Email : bpbd@tasikmalayakab.go.id | TASIKMALAYA - 46113</div>
             </td>
         </tr>
     </table>
-    <div style="border-top: 4px solid #000; border-bottom: 1.5px solid #000; margin-top: 6px; height: 2px;"></div>
+    <div class="kop-divider"></div>
 
-    {{-- ═══ JUDUL ═══ --}}
+    {{-- JUDUL DOKUMEN --}}
     <div class="title-box">
-        <h3>Berita Acara Serah Terima Barang</h3>
-        <p class="nomor">Nomor: {{ $nomorBA }}</p>
-        @if($transaction->referenceBap)
-            <p style="font-size:10pt; margin-top:2px; font-style:italic;">
-                BAP: {{ $transaction->referenceBap->judul_ba }}
-                ({{ \Carbon\Carbon::parse($transaction->referenceBap->tgl_ba)->format('d/m/Y') }})
-            </p>
-        @endif
+        <h3>BERITA ACARA SERAH TERIMA BARANG</h3>
+        <p class="nomor">Nomor : {{ $nomorBA }}</p>
     </div>
 
-    {{-- ═══ OPENING ═══ --}}
+    {{-- PARAGRAF PEMBUKA --}}
     <div class="opening">
-        Pada hari ini, <strong>{{ $namaHari }}</strong>
-        Tanggal <strong>{{ $tglText }}</strong>
-        Bulan <strong>{{ $namaBulan }}</strong>
-        Tahun <strong>{{ $tahunText }}</strong>
-        yang bertanda tangan dibawah ini:
+        Pada hari ini, <strong>{{ $namaHari }}</strong> Tanggal <strong>{{ $tglText }}</strong> Bulan <strong>{{ $namaBulan }}</strong> Tahun <strong>{{ $tahunText }}</strong> yang bertanda tangan dibawah ini :
     </div>
 
-    {{-- ═══ PIHAK-PIHAK ═══ --}}
+    {{-- PIHAK-PIHAK --}}
     <div class="parties">
         <table class="party-table">
             <tr>
-                <td class="col-label">I.&nbsp;&nbsp;Nama</td>
+                <td class="col-num">I.</td>
+                <td class="col-label">Nama</td>
                 <td class="col-dots">:</td>
                 <td class="col-value"><strong>{{ $namaPI }}</strong></td>
             </tr>
             <tr>
-                <td class="col-label">&nbsp;&nbsp;&nbsp;&nbsp;NIP</td>
+                <td></td>
+                <td class="col-label">NIP</td>
                 <td class="col-dots">:</td>
                 <td class="col-value">{{ $nipPI }}</td>
             </tr>
             <tr>
-                <td class="col-label">&nbsp;&nbsp;&nbsp;&nbsp;Jabatan</td>
+                <td></td>
+                <td class="col-label">Jabatan</td>
                 <td class="col-dots">:</td>
                 <td class="col-value">{{ $jabatanPI }}</td>
             </tr>
         </table>
-        <div class="selanjutnya">Selanjutnya disebut <strong>PIHAK PERTAMA</strong></div>
+        <div class="selanjutnya">Selanjutnya disebut PIHAK PERTAMA</div>
 
         <table class="party-table">
             <tr>
-                <td class="col-label">II.&nbsp;Nama</td>
+                <td class="col-num">II.</td>
+                <td class="col-label">Nama</td>
                 <td class="col-dots">:</td>
                 <td class="col-value"><strong>{{ $namaPII }}</strong></td>
             </tr>
             <tr>
-                <td class="col-label">&nbsp;&nbsp;&nbsp;&nbsp;NIP</td>
+                <td></td>
+                <td class="col-label">NIP</td>
                 <td class="col-dots">:</td>
                 <td class="col-value">{{ $nipPII }}</td>
             </tr>
             <tr>
-                <td class="col-label">&nbsp;&nbsp;&nbsp;&nbsp;Jabatan</td>
+                <td></td>
+                <td class="col-label">Jabatan</td>
                 <td class="col-dots">:</td>
                 <td class="col-value">{{ $jabatanPII }}</td>
             </tr>
             <tr>
-                <td class="col-label">&nbsp;&nbsp;&nbsp;&nbsp;Alamat</td>
+                <td></td>
+                <td class="col-label">Alamat</td>
                 <td class="col-dots">:</td>
                 <td class="col-value">{{ $alamatPII }}</td>
             </tr>
         </table>
-        <div class="selanjutnya">Selanjutnya disebut <strong>PIHAK KEDUA</strong></div>
+        <div class="selanjutnya">Selanjutnya disebut PIHAK KEDUA</div>
     </div>
 
-    {{-- ═══ KALIMAT PENYERAHAN ═══ --}}
-    <div class="closing">
-        Dengan ini <strong>PIHAK PERTAMA</strong> menyerahkan bantuan kepada <strong>PIHAK KEDUA</strong>, berupa:
+    {{-- PENYERAHAN SENTENCE --}}
+    <div class="closing-sentence">
+        Dengan ini <strong>PIHAK PERTAMA</strong> menyerahkan bantuan kepada <strong>PIHAK KEDUA</strong>, berupa :
     </div>
 
-    {{-- ═══ TABEL BARANG ═══ --}}
+    {{-- TABEL BARANG (Pre-rendered 10 rows) --}}
     <table class="items-table">
         <thead>
             <tr>
-                <th width="35">No</th>
-                <th>Nama Barang</th>
-                <th width="160">Banyaknya</th>
-                <th width="160">Keterangan</th>
+                <th width="5%">No</th>
+                <th width="50%">Nama Barang</th>
+                <th width="20%">Banyaknya</th>
+                <th width="25%">Keterangan</th>
             </tr>
         </thead>
         <tbody>
@@ -275,19 +399,12 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $tx->barang->nama_barang ?? '-' }}</td>
                 <td class="text-center">
-                    @if($tx->jumlah_barang_besar > 0)
-                        {{ number_format($tx->jumlah_barang_besar) }} {{ $tx->barang->satuanBesar->nama_satuan ?? 'Pcs' }}
-                        @if($tx->jumlah_barang_kecil > 0)
-                            &amp; {{ number_format($tx->jumlah_barang_kecil) }} {{ $tx->barang->satuanKecil->nama_satuan ?? 'Pcs' }}
-                        @endif
-                    @else
-                        {{ number_format($tx->jumlah_barang_kecil) }} {{ $tx->barang->satuanKecil->nama_satuan ?? 'Pcs' }}
-                    @endif
+                    {{ number_format($tx->jumlah_barang_kecil) }} {{ $tx->barang->satuanKecil->nama_satuan ?? 'Pcs' }}
                 </td>
                 <td>{{ $tx->keterangan ?? '' }}</td>
             </tr>
             @endforeach
-            {{-- Padding baris kosong minimum 10 baris --}}
+            {{-- Pad to exactly 10 rows minimum --}}
             @for($i = count($transactions); $i < 10; $i++)
             <tr>
                 <td class="text-center">{{ $i + 1 }}</td>
@@ -299,49 +416,66 @@
         </tbody>
     </table>
 
-    {{-- ═══ KALIMAT PENUTUP ═══ --}}
-    <div class="closing">
-        PIHAK KEDUA menerima bantuan sebagaimana tertulis diatas dari PIHAK PERTAMA untuk
-        {{ $keperluan }} di {{ $desaKec }}.
+    {{-- PARAGRAF PENUTUP --}}
+    <div class="closing-desc">
+        @if($transaction->jenis == 'keluar')
+            PIHAK KEDUA menerima bantuan sebagaimana tertulis diatas dari PIHAK PERTAMA untuk <strong>{{ $catatan }}</strong> di Desa <strong>{{ $desa }}</strong> Kecamatan <strong>{{ $kecamatan }}</strong>.
+        @else
+            PIHAK KEDUA menerima bantuan sebagaimana tertulis diatas dari PIHAK PERTAMA untuk <strong>{{ $catatan }}</strong>.
+        @endif
     </div>
-    <div class="closing">
+    <div class="closing-desc">
         Demikian berita acara ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.
     </div>
 
-    {{-- ═══ TANDA TANGAN ═══ --}}
+    {{-- TANDA TANGAN --}}
     <div class="sig-section">
         <table class="sig-table">
             <tr>
                 <td>
                     <div>Yang Menerima</div>
                     <div><strong>PIHAK KEDUA,</strong></div>
-                    <div class="sig-name">
-                        <span class="underline">{{ $namaPII }}</span>
-                        @if($nipPII && $nipPII !== '-')
-                        <br><span class="sig-nip">NIP. {{ $nipPII }}</span>
+                    <div class="sig-space"></div>
+                    <div>
+                        <span class="sig-name">{{ $namaPII }}</span>
+                        @if($nipPII && $nipPII !== '-' && $nipPII !== '......................................')
+                            <div class="sig-nip">NIP. {{ $nipPII }}</div>
+                        @endif
+                        @if(!empty($jabatanPII) && $jabatanPII !== '-')
+                            <div style="font-size:7.5pt; color:#444;">{{ $jabatanPII }}</div>
                         @endif
                     </div>
                 </td>
                 <td>
                     <div>Yang Menyerahkan</div>
                     <div><strong>PIHAK PERTAMA,</strong></div>
-                    <div class="sig-name">
-                        <span class="underline">{{ $namaPI }}</span><br>
-                        <span class="sig-nip">NIP. {{ $nipPI }}</span>
+                    <div class="sig-space"></div>
+                    <div>
+                        <span class="sig-name">{{ $namaPI }}</span>
+                        @if(!empty($nipPI) && $nipPI !== '-')
+                            <div class="sig-nip">NIP. {{ $nipPI }}</div>
+                        @endif
+                        @if(!empty($jabatanPI) && $jabatanPI !== '......................................')
+                            <div style="font-size:7.5pt; color:#444;">{{ $jabatanPI }}</div>
+                        @endif
+                        @if(!empty($alamatPI) && $alamatPI !== '......................................')
+                            <div style="font-size:7pt; color:#666;">{{ $alamatPI }}</div>
+                        @endif
                     </div>
                 </td>
             </tr>
         </table>
     </div>
 
-    {{-- ═══ MENGETAHUI ═══ --}}
+    {{-- MENGETAHUI --}}
     <div class="know-section">
         <div>Mengetahui,</div>
         <div>Kepala Pelaksana</div>
         <div>BPBD Kabupaten Tasikmalaya</div>
-        <div class="sig-name">
-            <span class="underline">RONI, A.Ks., M.M</span><br>
-            <span class="sig-nip">NIP. 19690901 199303 1 004</span>
+        <div class="sig-space"></div>
+        <div>
+            <span class="sig-name">{{ $namaKP }}</span>
+            <div class="sig-nip">NIP. {{ $nipKP }}</div>
         </div>
     </div>
 

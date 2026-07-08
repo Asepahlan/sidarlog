@@ -24,7 +24,7 @@ class LowStockNotification extends Notification
 
     public function toArray($notifiable): array
     {
-        $lokasi  = optional($this->item->lokasiBarang)->nama_lokasi ?? '-';
+        $lokasi  = optional($this->item->gudangPenyimpanan)->nama_gudang ?? '-';
         $satuan  = optional($this->item->satuanKecil)->nama_satuan ?? 'pcs';
 
         return [

@@ -148,9 +148,6 @@
                 </td>
                 <td style="white-space:nowrap">
                     {{ $tx->jumlah_barang_kecil ?? 0 }} {{ $tx->barang?->satuanKecil?->nama_satuan ?? '' }}
-                    @if($tx->jumlah_barang_besar)
-                        <br><small>{{ $tx->jumlah_barang_besar }} {{ $tx->barang?->satuanBesar?->nama_satuan ?? '' }}</small>
-                    @endif
                 </td>
                 <td>{{ $tx->gudang->nama_gudang ?? '-' }}</td>
                 <td style="font-size:7.5pt;">

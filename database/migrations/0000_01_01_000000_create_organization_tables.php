@@ -11,15 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('instansis', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_instansi');
-            $table->string('kode_instansi')->unique()->nullable();
-            $table->text('alamat')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
         Schema::create('jabatans', function (Blueprint $table) {
             $table->id();
             $table->string('nama_jabatan');
@@ -39,6 +30,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('bidangs');
         Schema::dropIfExists('jabatans');
-        Schema::dropIfExists('instansis');
     }
 };

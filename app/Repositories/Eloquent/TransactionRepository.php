@@ -16,6 +16,7 @@ class TransactionRepository extends BaseRepository implements TransactionReposit
         'pengguna',
         'pihakKesatu',
         'pihakKedua',
+        'penerima',
     ];
 
     public function __construct(StockTransaction $model)

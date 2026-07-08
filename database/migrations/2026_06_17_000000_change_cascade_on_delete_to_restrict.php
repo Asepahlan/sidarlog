@@ -37,21 +37,7 @@ return new class extends Migration
             $table->foreign('gudang_id')->references('id')->on('warehouses')->restrictOnDelete();
         });
 
-        // 3. stock_mutations
-        $this->safelyDropForeign('stock_mutations', [
-            'stock_mutations_barang_id_foreign',
-            'stock_mutations_item_id_foreign',
-            'stock_mutations_gudang_asal_id_foreign',
-            'stock_mutations_from_warehouse_id_foreign',
-            'stock_mutations_gudang_tujuan_id_foreign',
-            'stock_mutations_to_warehouse_id_foreign'
-        ]);
 
-        Schema::table('stock_mutations', function (Blueprint $table) {
-            $table->foreign('barang_id')->references('id')->on('items')->restrictOnDelete();
-            $table->foreign('gudang_asal_id')->references('id')->on('warehouses')->restrictOnDelete();
-            $table->foreign('gudang_tujuan_id')->references('id')->on('warehouses')->restrictOnDelete();
-        });
     }
 
     /**
@@ -80,17 +66,7 @@ return new class extends Migration
             $table->foreign('gudang_id')->references('id')->on('warehouses')->cascadeOnDelete();
         });
 
-        $this->safelyDropForeign('stock_mutations', [
-            'stock_mutations_barang_id_foreign',
-            'stock_mutations_gudang_asal_id_foreign',
-            'stock_mutations_gudang_tujuan_id_foreign'
-        ]);
 
-        Schema::table('stock_mutations', function (Blueprint $table) {
-            $table->foreign('barang_id')->references('id')->on('items')->cascadeOnDelete();
-            $table->foreign('gudang_asal_id')->references('id')->on('warehouses')->cascadeOnDelete();
-            $table->foreign('gudang_tujuan_id')->references('id')->on('warehouses')->cascadeOnDelete();
-        });
     }
 
     /**

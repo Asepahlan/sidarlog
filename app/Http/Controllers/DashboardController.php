@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\StockTransaction;
-use App\Models\StockMutation;
 use App\Models\StockOpname;
 
 class DashboardController extends Controller
@@ -45,7 +44,6 @@ class DashboardController extends Controller
         $operasional = [
             'masuk_hari_ini'   => StockTransaction::where('jenis', 'masuk')->whereDate('tgl_transaksi', Carbon::today())->count(),
             'keluar_hari_ini'  => StockTransaction::where('jenis', 'keluar')->whereDate('tgl_transaksi', Carbon::today())->count(),
-            'mutasi_hari_ini'  => StockMutation::whereDate('created_at', Carbon::today())->count(),
             'opname_bulan_ini' => StockOpname::whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
         ];
 
@@ -55,7 +53,7 @@ class DashboardController extends Controller
                 'id'            => $i->id,
                 'nama_barang'   => $i->nama_barang,
                 'kode_barang'   => $i->kode_barang,
-                'lokasi'        => optional($i->lokasiBarang)->nama_lokasi ?: '-',
+                'lokasi'        => optional($i->gudangPenyimpanan)->nama_gudang ?? '-',
                 'stok_saat_ini' => $i->stok_saat_ini_kecil ?? 0,
                 'stok_minimal'  => $i->stok_minimal ?? 0,
                 'satuan'        => optional($i->satuanKecil)->nama_satuan ?: 'pcs',
@@ -67,7 +65,7 @@ class DashboardController extends Controller
                 'id'             => $i->id,
                 'nama_barang'    => $i->nama_barang,
                 'kode_barang'    => $i->kode_barang,
-                'lokasi'         => optional($i->lokasiBarang)->nama_lokasi ?: '-',
+                'lokasi'         => optional($i->gudangPenyimpanan)->nama_gudang ?? '-',
                 'tgl_kadaluarsa' => $i->tgl_kadaluarsa->format('d/m/Y'),
                 'expired_days'   => Carbon::today()->diffInDays($i->tgl_kadaluarsa),
             ];
@@ -78,7 +76,7 @@ class DashboardController extends Controller
                 'id'             => $i->id,
                 'nama_barang'    => $i->nama_barang,
                 'kode_barang'    => $i->kode_barang,
-                'lokasi'         => optional($i->lokasiBarang)->nama_lokasi ?: '-',
+                'lokasi'         => optional($i->gudangPenyimpanan)->nama_gudang ?? '-',
                 'tgl_kadaluarsa' => $i->tgl_kadaluarsa->format('d/m/Y'),
                 'days_left'      => Carbon::today()->diffInDays($i->tgl_kadaluarsa),
             ];
@@ -119,7 +117,7 @@ class DashboardController extends Controller
                 'id'            => $item->id,
                 'nama_barang'   => $item->nama_barang,
                 'kode_barang'   => $item->kode_barang,
-                'lokasi'        => optional($item->lokasiBarang)->nama_lokasi ?? '-',
+                'lokasi'        => optional($item->gudangPenyimpanan)->nama_gudang ?? '-',
                 'stok_saat_ini' => $item->stok_saat_ini_kecil ?? 0,
                 'stok_minimal'  => $item->stok_minimal ?? 0,
                 'satuan'        => optional($item->satuanKecil)->nama_satuan ?? 'pcs',
@@ -128,7 +126,7 @@ class DashboardController extends Controller
                 'id'             => $item->id,
                 'nama_barang'    => $item->nama_barang,
                 'kode_barang'    => $item->kode_barang,
-                'lokasi'         => optional($item->lokasiBarang)->nama_lokasi ?? '-',
+                'lokasi'         => optional($item->gudangPenyimpanan)->nama_gudang ?? '-',
                 'tgl_kadaluarsa' => $item->tgl_kadaluarsa->format('d/m/Y'),
                 'expired_days'   => Carbon::today()->diffInDays($item->tgl_kadaluarsa),
             ]),
@@ -136,7 +134,7 @@ class DashboardController extends Controller
                 'id'             => $item->id,
                 'nama_barang'    => $item->nama_barang,
                 'kode_barang'    => $item->kode_barang,
-                'lokasi'         => optional($item->lokasiBarang)->nama_lokasi ?? '-',
+                'lokasi'         => optional($item->gudangPenyimpanan)->nama_gudang ?? '-',
                 'tgl_kadaluarsa' => $item->tgl_kadaluarsa->format('d/m/Y'),
                 'days_left'      => Carbon::today()->diffInDays($item->tgl_kadaluarsa),
             ]),
@@ -144,7 +142,6 @@ class DashboardController extends Controller
             'operasional' => [
                 'masuk_hari_ini'   => StockTransaction::where('jenis', 'masuk')->whereDate('tgl_transaksi', Carbon::today())->count(),
                 'keluar_hari_ini'  => StockTransaction::where('jenis', 'keluar')->whereDate('tgl_transaksi', Carbon::today())->count(),
-                'mutasi_hari_ini'  => StockMutation::whereDate('created_at', Carbon::today())->count(),
                 'opname_bulan_ini' => StockOpname::whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
             ],
         ]);
@@ -155,7 +152,7 @@ class DashboardController extends Controller
      */
     private function getExpiredItems()
     {
-        return Item::with(['kategori', 'satuanKecil', 'lokasiBarang'])
+        return Item::with(['kategori', 'satuanKecil', 'gudang'])
             ->whereNotNull('tgl_kadaluarsa')
             ->where('tgl_kadaluarsa', '<', Carbon::today())
             ->get();

@@ -7,16 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 class StockOpname extends Model
 {
     protected $fillable = [
+        'nomor_stock_opname',
+        'periode',
+        'tgl_opname',
         'barang_id',
         'gudang_id',
         'pengguna_id',
         'stok_sistem',
         'stok_fisik',
         'selisih',
-        'keterangan'
+        'kondisi_barang',
+        'keterangan',
+        'petugas_nama',
+        'petugas_nip',
+        'kepala_gudang_nama',
+        'kepala_gudang_nip',
+        'mengetahui_nama',
+        'mengetahui_nip',
     ];
 
     protected $casts = [
+        'tgl_opname' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

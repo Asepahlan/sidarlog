@@ -67,26 +67,14 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     
                     <!-- Stok Kecil -->
-                    <div class="bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-5 border border-blue-100/50 dark:border-blue-900/20 flex items-center justify-between">
+                    <div class="bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-5 border border-blue-100/50 dark:border-blue-900/20 flex items-center justify-between col-span-2">
                         <div>
-                            <p class="text-xs font-bold text-blue-600/80 dark:text-blue-400/80 uppercase tracking-wider mb-1">Stok Satuan Kecil</p>
+                            <p class="text-xs font-bold text-blue-600/80 dark:text-blue-400/80 uppercase tracking-wider mb-1">Stok Satuan</p>
                             <h3 class="text-3xl font-extrabold text-blue-900 dark:text-blue-300">{{ $item->stok_saat_ini_kecil ?? 0 }}</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Satuan: <span class="font-bold text-gray-700 dark:text-gray-300">{{ optional($item->satuanKecil)->nama_satuan ?? '-' }}</span></p>
                         </div>
                         <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
                             <i class="fas fa-boxes-stacked text-xl"></i>
-                        </div>
-                    </div>
-
-                    <!-- Stok Besar -->
-                    <div class="bg-purple-50/50 dark:bg-purple-900/10 rounded-2xl p-5 border border-purple-100/50 dark:border-purple-900/20 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-bold text-purple-600/80 dark:text-purple-400/80 uppercase tracking-wider mb-1">Stok Satuan Besar</p>
-                            <h3 class="text-3xl font-extrabold text-purple-900 dark:text-purple-300">{{ $item->stok_saat_ini_besar ?? 0 }}</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Satuan: <span class="font-bold text-gray-700 dark:text-gray-300">{{ optional($item->satuanBesar)->nama_satuan ?? '-' }}</span></p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400">
-                            <i class="fas fa-box text-xl"></i>
                         </div>
                     </div>
 
@@ -98,17 +86,8 @@
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Harga & Nilai Aset</h4>
                         <div class="space-y-3 bg-gray-50 dark:bg-navy-800/40 p-5 rounded-2xl border border-gray-100/50 dark:border-gray-800">
                             <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-500">Harga Satuan Kecil</span>
+                                <span class="text-gray-500">Harga Satuan</span>
                                 <span class="font-bold text-gray-900 dark:text-white">Rp {{ number_format($item->harga_satuan_kecil ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-500">Harga Satuan Besar</span>
-                                <span class="font-bold text-gray-900 dark:text-white">Rp {{ number_format($item->harga_satuan_besar ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            <hr class="border-gray-200/50 dark:border-gray-700/50 my-1">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-500 font-medium">Total Nilai Aset (Kecil)</span>
-                                <span class="font-extrabold text-primary-600 dark:text-primary-400">Rp {{ number_format(($item->stok_saat_ini_kecil ?? 0) * ($item->harga_satuan_kecil ?? 0), 0, ',', '.') }}</span>
                             </div>
                         </div>
                     </div>
@@ -117,8 +96,10 @@
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Penyimpanan & Anggaran</h4>
                         <div class="space-y-3 bg-gray-50 dark:bg-navy-800/40 p-5 rounded-2xl border border-gray-100/50 dark:border-gray-800 text-sm">
                             <div class="flex justify-between items-start gap-4">
-                                <span class="text-gray-500 shrink-0">Lokasi</span>
-                                <span class="font-bold text-gray-900 dark:text-white text-right leading-tight">{{ optional($item->lokasiBarang)->nama_lokasi ?? '-' }}</span>
+                                <span class="text-gray-500 shrink-0">Gudang</span>
+                                <span class="font-bold text-gray-900 dark:text-white text-right leading-tight">
+                                    {{ optional($item->gudangPenyimpanan)->nama_gudang ?? '—' }}
+                                </span>
                             </div>
                             <div class="flex justify-between items-start gap-4">
                                 <span class="text-gray-500 shrink-0">Sumber Dana</span>
@@ -138,10 +119,6 @@
                     <div class="space-y-4">
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Masa Berlaku & Tanggal</h4>
                         <div class="space-y-3 bg-gray-50 dark:bg-navy-800/40 p-5 rounded-2xl border border-gray-100/50 dark:border-gray-800 text-sm">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500">Tanggal Diterima</span>
-                                <span class="font-bold text-gray-900 dark:text-white">{{ $item->tgl_diterima ? $item->tgl_diterima->format('d F Y') : '-' }}</span>
-                            </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500">Tanggal Expired</span>
                                 <span class="font-bold text-gray-900 dark:text-white">
@@ -204,11 +181,6 @@
                                 <h4 class="text-xs font-bold text-gray-900 dark:text-white leading-tight">
                                     {{ $tx->jenis === 'masuk' ? '+' : '-' }} {{ $tx->jumlah_barang_kecil }} {{ optional($item->satuanKecil)->nama_satuan }}
                                 </h4>
-                                @if($tx->jumlah_barang_besar > 0)
-                                    <p class="text-[11px] text-gray-500 dark:text-gray-400">
-                                        ({{ $tx->jenis === 'masuk' ? '+' : '-' }} {{ $tx->jumlah_barang_besar }} {{ optional($item->satuanBesar)->nama_satuan }})
-                                    </p>
-                                @endif
                                 <div class="space-y-0.5 text-[10px] text-gray-500 dark:text-gray-400">
                                     <p><span class="font-medium">Ref:</span> <span class="font-mono">{{ $tx->no_referensi }}</span></p>
                                     <p><span class="font-medium">Gudang:</span> {{ optional($tx->gudang)->nama_gudang ?? '-' }}</p>

@@ -7,7 +7,6 @@ use App\Models\BudgetSource;
 use App\Models\Category;
 use App\Models\Item;
 use App\Models\ItemLocation;
-use App\Models\StockMutation;
 use App\Models\StockOpname;
 use App\Models\StockTransaction;
 use App\Models\Unit;
@@ -128,33 +127,33 @@ class DummyNotificationSeeder extends Seeder
         );
 
         // ── BARANG BPBD REALISTIS ────────────────────────────────────
-        // Format: [nama, kategori, satuan_kecil, satuan_besar, harga_kecil, harga_besar, stok_min, stok_saat_ini_kecil, stok_saat_ini_besar, lokasi, sumber, tgl_exp]
+        // Format: [nama, kategori, satuan_kecil, harga_kecil, stok_min, stok_saat_ini_kecil, lokasi, sumber, tgl_exp]
         $barangs = [
-            ['Mie Instan', 'Logistik Makanan', 'Pcs', 'Dus', 3000, 120000, 50, 480, 12, 'Rak A (Bahan Makanan)', 'APBD Kab. Tasikmalaya', null],
-            ['Makanan Siap Saji', 'Logistik Makanan', 'Pcs', 'Dus', 15000, 150000, 20, 150, 15, 'Rak A (Bahan Makanan)', 'APBN (Dana Siap Pakai BNPB)', $now->copy()->addMonths(6)->toDateString()],
-            ['Air Mineral 600ml', 'Logistik Makanan', 'Pcs', 'Dus', 2500, 45000, 50, 720, 30, 'Rak A (Bahan Makanan)', 'APBD Kab. Tasikmalaya', $now->copy()->addMonths(12)->toDateString()],
-            ['Susu Bayi 400gr', 'Logistik Makanan', 'Box', null, 85000, null, 15, 60, 0, 'Rak A (Bahan Makanan)', 'APBD Prov. Jawa Barat', $now->copy()->addMonths(4)->toDateString()],
-            ['Selimut Wol Tebal', 'Sandang & Perlengkapan Tidur', 'Lembar', null, 65000, null, 50, 250, 0, 'Rak B (Peralatan Tidur)', 'APBD Kab. Tasikmalaya', null],
-            ['Kain Sarung Dewasa', 'Sandang & Perlengkapan Tidur', 'Pcs', null, 50000, null, 50, 180, 0, 'Rak B (Peralatan Tidur)', 'APBD Kab. Tasikmalaya', null],
-            ['Matras Karet Lipat', 'Sandang & Perlengkapan Tidur', 'Pcs', null, 75000, null, 30, 110, 0, 'Rak B (Peralatan Tidur)', 'APBN (Dana Siap Pakai BNPB)', null],
-            ['Tenda Pengungsi Besar 4x6', 'Huntara & Hunian', 'Unit', null, 8500000, null, 2, 8, 0, 'Gudang Peralatan SAR', 'APBN (Dana Siap Pakai BNPB)', null],
-            ['Tenda Keluarga (Dom)', 'Huntara & Hunian', 'Unit', null, 2500000, null, 5, 20, 0, 'Gudang Peralatan SAR', 'APBD Prov. Jawa Barat', null],
-            ['Paket Sembako Darurat', 'Huntara & Hunian', 'Paket', null, 2500000, null, 20, 85, 0, 'Rak A (Bahan Makanan)', 'APBD Kab. Tasikmalaya', null],
-            ['Masker Medis 3-Ply', 'Medis & Higienitas', 'Box', null, 40000, null, 10, 120, 0, 'Rak Medis & Sanitasi', 'APBD Kab. Tasikmalaya', $now->copy()->addMonths(24)->toDateString()],
-            ['Cairan Hand Sanitizer 500ml', 'Medis & Higienitas', 'Botol', null, 35000, null, 10, 35, 0, 'Rak Medis & Sanitasi', 'APBD Prov. Jawa Barat', $now->copy()->addMonths(12)->toDateString()],
-            ['Pembalut Wanita', 'Medis & Higienitas', 'Pack', null, 15000, null, 20, 95, 0, 'Rak Medis & Sanitasi', 'APBD Kab. Tasikmalaya', null],
-            ['Popok Bayi (Diapers)', 'Medis & Higienitas', 'Pack', null, 60000, null, 20, 75, 0, 'Rak Medis & Sanitasi', 'APBD Kab. Tasikmalaya', null],
-            ['Perahu Karet 6 Penumpang', 'Peralatan Evakuasi & SAR', 'Unit', null, 25000000, null, 1, 4, 0, 'Gudang Peralatan SAR', 'APBN (Dana Siap Pakai BNPB)', null],
-            ['Rompi Pelampung (Life Jacket)', 'Peralatan Evakuasi & SAR', 'Pcs', null, 180000, null, 10, 50, 0, 'Gudang Peralatan SAR', 'APBN (Dana Siap Pakai BNPB)', null],
-            ['Genset Portable 3000W', 'Peralatan Evakuasi & SAR', 'Unit', null, 6500000, null, 2, 6, 0, 'Gudang Peralatan SAR', 'APBD Prov. Jawa Barat', null],
-            ['Gergaji Mesin (Chainsaw)', 'Peralatan Evakuasi & SAR', 'Unit', null, 4200000, null, 2, 5, 0, 'Gudang Peralatan SAR', 'APBD Kab. Tasikmalaya', null],
-            ['Sekop Lipat Baja', 'Peralatan Evakuasi & SAR', 'Pcs', null, 95000, null, 10, 24, 0, 'Gudang Peralatan SAR', 'APBD Kab. Tasikmalaya', null],
-            ['Cangkul Gagang Kayu', 'Peralatan Evakuasi & SAR', 'Pcs', null, 85000, null, 10, 20, 0, 'Gudang Peralatan SAR', 'APBD Kab. Tasikmalaya', null],
+            ['Mie Instan', 'Logistik Makanan', 'Pcs', 3000, 50, 480, 'Rak A (Bahan Makanan)', 'APBD Kab. Tasikmalaya', null],
+            ['Makanan Siap Saji', 'Logistik Makanan', 'Pcs', 15000, 20, 150, 'Rak A (Bahan Makanan)', 'APBN (Dana Siap Pakai BNPB)', $now->copy()->addMonths(6)->toDateString()],
+            ['Air Mineral 600ml', 'Logistik Makanan', 'Pcs', 2500, 50, 720, 'Rak A (Bahan Makanan)', 'APBD Kab. Tasikmalaya', $now->copy()->addMonths(12)->toDateString()],
+            ['Susu Bayi 400gr', 'Logistik Makanan', 'Box', 85000, 15, 60, 'Rak A (Bahan Makanan)', 'APBD Prov. Jawa Barat', $now->copy()->addMonths(4)->toDateString()],
+            ['Selimut Wol Tebal', 'Sandang & Perlengkapan Tidur', 'Lembar', 65000, 50, 250, 'Rak B (Peralatan Tidur)', 'APBD Kab. Tasikmalaya', null],
+            ['Kain Sarung Dewasa', 'Sandang & Perlengkapan Tidur', 'Pcs', 50000, 50, 180, 'Rak B (Peralatan Tidur)', 'APBD Kab. Tasikmalaya', null],
+            ['Matras Karet Lipat', 'Sandang & Perlengkapan Tidur', 'Pcs', 75000, 30, 110, 'Rak B (Peralatan Tidur)', 'APBN (Dana Siap Pakai BNPB)', null],
+            ['Tenda Pengungsi Besar 4x6', 'Huntara & Hunian', 'Unit', 8500000, 2, 8, 'Gudang Peralatan SAR', 'APBN (Dana Siap Pakai BNPB)', null],
+            ['Tenda Keluarga (Dom)', 'Huntara & Hunian', 'Unit', 2500000, 5, 20, 'Gudang Peralatan SAR', 'APBD Prov. Jawa Barat', null],
+            ['Paket Sembako Darurat', 'Huntara & Hunian', 'Paket', 2500000, 20, 85, 'Rak A (Bahan Makanan)', 'APBD Kab. Tasikmalaya', null],
+            ['Masker Medis 3-Ply', 'Medis & Higienitas', 'Box', 40000, 10, 120, 'Rak Medis & Sanitasi', 'APBD Kab. Tasikmalaya', $now->copy()->addMonths(24)->toDateString()],
+            ['Cairan Hand Sanitizer 500ml', 'Medis & Higienitas', 'Botol', 35000, 10, 35, 'Rak Medis & Sanitasi', 'APBD Prov. Jawa Barat', $now->copy()->addMonths(12)->toDateString()],
+            ['Pembalut Wanita', 'Medis & Higienitas', 'Pack', 15000, 20, 95, 'Rak Medis & Sanitasi', 'APBD Kab. Tasikmalaya', null],
+            ['Popok Bayi (Diapers)', 'Medis & Higienitas', 'Pack', 60000, 20, 75, 'Rak Medis & Sanitasi', 'APBD Kab. Tasikmalaya', null],
+            ['Perahu Karet 6 Penumpang', 'Peralatan Evakuasi & SAR', 'Unit', 25000000, 1, 4, 'Gudang Peralatan SAR', 'APBN (Dana Siap Pakai BNPB)', null],
+            ['Rompi Pelampung (Life Jacket)', 'Peralatan Evakuasi & SAR', 'Pcs', 180000, 10, 50, 'Gudang Peralatan SAR', 'APBN (Dana Siap Pakai BNPB)', null],
+            ['Genset Portable 3000W', 'Peralatan Evakuasi & SAR', 'Unit', 6500000, 2, 6, 'Gudang Peralatan SAR', 'APBD Prov. Jawa Barat', null],
+            ['Gergaji Mesin (Chainsaw)', 'Peralatan Evakuasi & SAR', 'Unit', 4200000, 2, 5, 'Gudang Peralatan SAR', 'APBD Kab. Tasikmalaya', null],
+            ['Sekop Lipat Baja', 'Peralatan Evakuasi & SAR', 'Pcs', 95000, 10, 24, 'Gudang Peralatan SAR', 'APBD Kab. Tasikmalaya', null],
+            ['Cangkul Gagang Kayu', 'Peralatan Evakuasi & SAR', 'Pcs', 85000, 10, 20, 'Gudang Peralatan SAR', 'APBD Kab. Tasikmalaya', null],
         ];
 
         $itemObjs = [];
         foreach ($barangs as $i => $b) {
-            [$nama, $katNama, $satKecil, $satBesar, $hargaKecil, $hargaBesar, $min, $stokKecil, $stokBesar, $lokNama, $srcNama, $exp] = $b;
+            [$nama, $katNama, $satKecil, $hargaKecil, $min, $stokKecil, $lokNama, $srcNama, $exp] = $b;
             $kode = 'BRG-' . str_pad($i + 1, 4, '0', STR_PAD_LEFT);
             $item = Item::firstOrCreate(
                 ['kode_barang' => $kode],
@@ -162,37 +161,32 @@ class DummyNotificationSeeder extends Seeder
                     'nama_barang'        => $nama,
                     'kategori_id'        => $cats[$katNama]->id,
                     'satuan_kecil_id'    => $units[$satKecil]->id,
-                    'satuan_besar_id'    => $satBesar ? $units[$satBesar]->id : null,
                     'harga_satuan_kecil' => $hargaKecil,
-                    'harga_satuan_besar' => $hargaBesar,
                     'sumber_anggaran_id' => $sources[$srcNama]->id,
                     'lokasi_barang_id'   => $locs[$lokNama]->id,
                     'stok_minimal'       => $min,
                     'stok_saat_ini_kecil'=> $stokKecil,
-                    'stok_saat_ini_besar'=> $stokBesar,
                     'tgl_kadaluarsa'     => $exp,
-                    'tgl_diterima'       => $now->copy()->subMonths(rand(1,4))->toDateString(),
                     'foto'               => null,
                 ]
             );
             $itemObjs[] = $item;
         }
 
-        // ── TRANSAKSI MASUK ──────────────────────────────────────────
-        // Format: [barang, gudang, kecil, besar, tgl]
+        // Format: [barang, gudang, kecil, tgl]
         $txMasuk = [
-            [$itemObjs[0],  $wh1, 800,  20, $now->copy()->subDays(25)], // Mie Instan
-            [$itemObjs[1],  $wh1, 200,  20, $now->copy()->subDays(24)], // Makanan Siap Saji
-            [$itemObjs[2],  $wh1, 960,  40, $now->copy()->subDays(22)], // Air Mineral
-            [$itemObjs[4],  $wh1, 300,   0, $now->copy()->subDays(20)], // Selimut
-            [$itemObjs[7],  $wh2,  10,   0, $now->copy()->subDays(18)], // Tenda Pengungsi Besar
-            [$itemObjs[8],  $wh2,  25,   0, $now->copy()->subDays(17)], // Tenda Keluarga
-            [$itemObjs[9],  $wh1, 100,   0, $now->copy()->subDays(15)], // Paket Sembako
-            [$itemObjs[14], $wh2,   5,   0, $now->copy()->subDays(12)], // Perahu Karet
-            [$itemObjs[15], $wh2,  60,   0, $now->copy()->subDays(10)], // Rompi Pelampung
-            [$itemObjs[16], $wh2,   8,   0, $now->copy()->subDays(8)],  // Genset
+            [$itemObjs[0],  $wh1, 880, $now->copy()->subDays(25)], // Mie Instan
+            [$itemObjs[1],  $wh1, 200, $now->copy()->subDays(24)], // Makanan Siap Saji
+            [$itemObjs[2],  $wh1, 960, $now->copy()->subDays(22)], // Air Mineral
+            [$itemObjs[4],  $wh1, 300, $now->copy()->subDays(20)], // Selimut
+            [$itemObjs[7],  $wh2,  10, $now->copy()->subDays(18)], // Tenda Pengungsi Besar
+            [$itemObjs[8],  $wh2,  25, $now->copy()->subDays(17)], // Tenda Keluarga
+            [$itemObjs[9],  $wh1, 100, $now->copy()->subDays(15)], // Paket Sembako
+            [$itemObjs[14], $wh2,   5, $now->copy()->subDays(12)], // Perahu Karet
+            [$itemObjs[15], $wh2,  60, $now->copy()->subDays(10)], // Rompi Pelampung
+            [$itemObjs[16], $wh2,   8, $now->copy()->subDays(8)],  // Genset
         ];
-        foreach ($txMasuk as $idx => [$item, $wh, $kecil, $besar, $tgl]) {
+        foreach ($txMasuk as $idx => [$item, $wh, $kecil, $tgl]) {
             StockTransaction::firstOrCreate(
                 ['no_referensi' => 'MSK-LOG-' . str_pad($idx+1, 3, '0', STR_PAD_LEFT)],
                 [
@@ -201,7 +195,6 @@ class DummyNotificationSeeder extends Seeder
                     'pengguna_id'        => $user->id,
                     'jenis'              => 'masuk',
                     'jumlah_barang_kecil'=> $kecil,
-                    'jumlah_barang_besar'=> $besar,
                     'penerima_penyerah'  => 'Pemasok Sembako/Peralatan BNPB',
                     'keterangan'         => 'Pengadaan logistik kebencanaan resmi',
                     'tgl_transaksi'      => $tgl,
@@ -210,20 +203,20 @@ class DummyNotificationSeeder extends Seeder
         }
 
         // ── TRANSAKSI KELUAR ─────────────────────────────────────────
-        // Format: [barang, gudang, kecil, besar, BAP, penerima, tgl]
+        // Format: [barang, gudang, kecil, BAP, penerima, tgl]
         $txKeluar = [
-            [$itemObjs[0],  $wh1, 200,  5, $bap2, $sp2, $now->copy()->subDays(10)], // Mie Instan ke Cipatujah
-            [$itemObjs[1],  $wh1,  50,  5, $bap2, $sp2, $now->copy()->subDays(10)], // Siap Saji ke Cipatujah
-            [$itemObjs[2],  $wh1, 240, 10, $bap2, $sp2, $now->copy()->subDays(10)], // Air Mineral ke Cipatujah
-            [$itemObjs[4],  $wh1,  50,  0, $bap3, $sp3, $now->copy()->subDays(8)],  // Selimut ke Karangnunggal
-            [$itemObjs[8],  $wh2,   5,  0, $bap3, $sp3, $now->copy()->subDays(8)],  // Tenda Keluarga ke Karangnunggal
-            [$itemObjs[9],  $wh1,  15,  0, $bap2, $sp2, $now->copy()->subDays(6)],  // Paket Sembako ke Cipatujah
-            [$itemObjs[14], $wh2,   1,  0, $bap1, $sp1, $now->copy()->subDays(5)],  // Perahu Karet ke Singaparna
-            [$itemObjs[15], $wh2,  10,  0, $bap1, $sp1, $now->copy()->subDays(5)],  // Rompi Pelampung ke Singaparna
-            [$itemObjs[16], $wh2,   2,  0, $bap1, $sp1, $now->copy()->subDays(4)],  // Genset ke Singaparna
-            [$itemObjs[17], $wh2,   1,  0, $bap1, $sp1, $now->copy()->subDays(4)],  // Chainsaw ke Singaparna
+            [$itemObjs[0],  $wh1, 200, $bap2, $sp2, $now->copy()->subDays(10)], // Mie Instan ke Cipatujah
+            [$itemObjs[1],  $wh1,  50, $bap2, $sp2, $now->copy()->subDays(10)], // Siap Saji ke Cipatujah
+            [$itemObjs[2],  $wh1, 240, $bap2, $sp2, $now->copy()->subDays(10)], // Air Mineral ke Cipatujah
+            [$itemObjs[4],  $wh1,  50, $bap3, $sp3, $now->copy()->subDays(8)],  // Selimut ke Karangnunggal
+            [$itemObjs[8],  $wh2,   5, $bap3, $sp3, $now->copy()->subDays(8)],  // Tenda Keluarga ke Karangnunggal
+            [$itemObjs[9],  $wh1,  15, $bap2, $sp2, $now->copy()->subDays(6)],  // Paket Sembako ke Cipatujah
+            [$itemObjs[14], $wh2,   1, $bap1, $sp1, $now->copy()->subDays(5)],  // Perahu Karet ke Singaparna
+            [$itemObjs[15], $wh2,  10, $bap1, $sp1, $now->copy()->subDays(5)],  // Rompi Pelampung ke Singaparna
+            [$itemObjs[16], $wh2,   2, $bap1, $sp1, $now->copy()->subDays(4)],  // Genset ke Singaparna
+            [$itemObjs[17], $wh2,   1, $bap1, $sp1, $now->copy()->subDays(4)],  // Chainsaw ke Singaparna
         ];
-        foreach ($txKeluar as $idx => [$item, $wh, $kecil, $besar, $bap, $sp, $tgl]) {
+        foreach ($txKeluar as $idx => [$item, $wh, $kecil, $bap, $sp, $tgl]) {
             $fp = ($idx % 2 === 0) ? $fp1 : $fp2;
             StockTransaction::firstOrCreate(
                 ['no_referensi' => 'KLR-LOG-' . str_pad($idx+1, 3, '0', STR_PAD_LEFT)],
@@ -237,35 +230,13 @@ class DummyNotificationSeeder extends Seeder
                     'penerima_penyerah'  => $sp->nama_pihak,
                     'jenis'              => 'keluar',
                     'jumlah_barang_kecil'=> $kecil,
-                    'jumlah_barang_besar'=> $besar,
                     'keterangan'         => 'Penyaluran logistik bencana alam daerah',
                     'tgl_transaksi'      => $tgl,
                 ]
             );
         }
 
-        // ── MUTASI GUDANG ────────────────────────────────────────────
-        $mutasis = [
-            [$itemObjs[0],  $wh1, $wh3, 100, $now->copy()->subDays(9)], // Mutasi Mie Instan ke Singaparna
-            [$itemObjs[2],  $wh1, $wh3, 200, $now->copy()->subDays(8)], // Mutasi Air Mineral ke Singaparna
-            [$itemObjs[4],  $wh1, $wh3,  50, $now->copy()->subDays(6)], // Mutasi Selimut ke Singaparna
-            [$itemObjs[15], $wh2, $wh3,  10, $now->copy()->subDays(5)], // Mutasi Life Jacket ke Singaparna
-        ];
-        foreach ($mutasis as $idx => [$item, $from, $to, $jml, $tgl]) {
-            StockMutation::firstOrCreate(
-                ['no_mutasi' => 'MUT-LOG-' . str_pad($idx+1, 3, '0', STR_PAD_LEFT)],
-                [
-                    'barang_id'           => $item->id,
-                    'gudang_asal_id'      => $from->id,
-                    'gudang_tujuan_id'    => $to->id,
-                    'pengguna_id'         => $user->id,
-                    'jumlah_barang_kecil' => $jml,
-                    'keterangan'          => 'Penyebaran stok logistik wilayah Tasikmalaya Barat',
-                    'status'              => 'APPROVED',
-                    'tgl_mutasi'          => $tgl,
-                ]
-            );
-        }
+
 
         // ── STOCK OPNAME ─────────────────────────────────────────────
         $opnames = [

@@ -19,6 +19,15 @@ class FirstPartyController extends Controller
         $request->validate(['nama_pihak' => 'required']);
         $party = FirstParty::create($request->all());
         ActivityLog::log("Menambah Pihak Kesatu: {$party->nama_pihak}", "Master Data", $request->all());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $party,
+                'message' => 'Data Pihak Kesatu berhasil ditambahkan'
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Data Pihak Kesatu berhasil ditambahkan');
     }
 

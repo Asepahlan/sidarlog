@@ -25,7 +25,7 @@ class NearExpiredNotification extends Notification
 
     public function toArray($notifiable): array
     {
-        $lokasi    = optional($this->item->lokasiBarang)->nama_lokasi ?? '-';
+        $lokasi    = optional($this->item->gudangPenyimpanan)->nama_gudang ?? '-';
         $satuan    = optional($this->item->satuanKecil)->nama_satuan ?? 'pcs';
         $expDate   = $this->item->tgl_kadaluarsa;
         $daysDiff  = Carbon::today()->diffInDays($expDate);

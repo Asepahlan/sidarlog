@@ -11,15 +11,12 @@
         id: '{{ old('id') }}',
         nama_barang: '{{ old('nama_barang') }}',
         kategori_id: '{{ old('kategori_id') }}',
-        lokasi_barang_id: '{{ old('lokasi_barang_id') }}',
         sumber_anggaran_id: '{{ old('sumber_anggaran_id') }}',
+        gudang_id: '{{ old('gudang_id') }}',
         satuan_kecil_id: '{{ old('satuan_kecil_id') }}',
-        satuan_besar_id: '{{ old('satuan_besar_id') }}',
         harga_satuan_kecil: '{{ old('harga_satuan_kecil') }}',
-        harga_satuan_besar: '{{ old('harga_satuan_besar') }}',
         stok_minimal: '{{ old('stok_minimal') }}',
         deskripsi: '{{ old('deskripsi') }}',
-        tgl_diterima: '{{ old('tgl_diterima') }}',
         tgl_kadaluarsa: '{{ old('tgl_kadaluarsa') }}'
     } @else {} @endif
 }">
@@ -111,7 +108,7 @@
                         <th class="px-4 py-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase text-left">Barang</th>
                         <th class="px-4 py-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase text-left">Stok Saat Ini</th>
                         <th class="px-4 py-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase text-left">Harga Satuan</th>
-                        <th class="px-4 py-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase text-left">Sumber & Lokasi</th>
+                        <th class="px-4 py-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase text-left">Sumber & Gudang</th>
                         <th class="px-4 py-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase text-left">Tanggal</th>
                         <th class="px-4 py-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase text-center w-32">Aksi</th>
                     </tr>
@@ -131,30 +128,25 @@
                                 <span class="font-medium text-emerald-600 dark:text-emerald-400">
                                     {{ $item->stok_saat_ini_kecil ?? 0 }} <span class="text-[9px] text-gray-500 font-normal">{{ optional($item->satuanKecil)->nama_satuan ?? 'pcs' }}</span>
                                 </span>
-                                @if($item->satuanBesar)
-                                <span class="text-purple-600 dark:text-purple-400 font-medium">
-                                    {{ $item->stok_saat_ini_besar ?? 0 }} <span class="text-[9px] text-gray-500 font-normal">{{ $item->satuanBesar->nama_satuan }}</span>
-                                </span>
-                                @endif
                             </div>
                         </td>
                         <td class="px-4 py-3 text-[11px] text-gray-900 dark:text-white">
                             <div class="flex flex-col space-y-0.5">
                                 <span>Rp {{ number_format($item->harga_satuan_kecil ?? 0, 0, ',', '.') }} <span class="text-[9px] text-gray-500 font-normal">/ {{ optional($item->satuanKecil)->nama_satuan ?? 'pcs' }}</span></span>
-                                @if($item->satuanBesar)
-                                <span class="text-gray-500">Rp {{ number_format($item->harga_satuan_besar ?? 0, 0, ',', '.') }} <span class="text-[9px] text-gray-400 font-normal">/ {{ $item->satuanBesar->nama_satuan }}</span></span>
-                                @endif
                             </div>
                         </td>
                         <td class="px-4 py-3 text-[11px] text-gray-900 dark:text-white">
                             <div class="flex flex-col space-y-0.5">
                                 <span class="font-medium whitespace-nowrap"><i class="fas fa-wallet mr-1 text-gray-400 text-[9px]"></i> {{ optional($item->sumberAnggaran)->nama_sumber ?? '-' }}</span>
-                                <span class="text-gray-500 whitespace-nowrap"><i class="fas fa-map-marker-alt mr-1 text-gray-400 text-[9px]"></i> {{ optional($item->lokasiBarang)->nama_lokasi ?? '-' }}</span>
+                                @if($item->gudangPenyimpanan)
+                                    <span class="text-gray-500 whitespace-nowrap"><i class="fas fa-warehouse mr-1 text-gray-400 text-[9px]"></i> {{ $item->gudangPenyimpanan->nama_gudang }}</span>
+                                @else
+                                    <span class="text-gray-400 whitespace-nowrap"><i class="fas fa-warehouse mr-1 text-[9px]"></i> —</span>
+                                @endif
                             </div>
                         </td>
                         <td class="px-4 py-3 text-[11px] text-gray-900 dark:text-white">
                             <div class="flex flex-col space-y-0.5">
-                                <span class="text-gray-500 whitespace-nowrap">Terima: {{ $item->tgl_diterima ? $item->tgl_diterima->format('d/m/y') : '-' }}</span>
                                 <span class="whitespace-nowrap">
                                     Exp: 
                                     @if($item->tgl_kadaluarsa)
@@ -175,7 +167,7 @@
                                 <i class="fas fa-qrcode text-xs"></i>
                             </button>
                             @can('barang.edit')
-                            <button @click="editItem = JSON.parse($el.dataset.item); openEdit = true" data-item="{{ json_encode(['id'=>$item->id,'nama_barang'=>$item->nama_barang,'kategori_id'=>$item->kategori_id,'lokasi_barang_id'=>$item->lokasi_barang_id,'sumber_anggaran_id'=>$item->sumber_anggaran_id,'satuan_kecil_id'=>$item->satuan_kecil_id,'satuan_besar_id'=>$item->satuan_besar_id,'harga_satuan_kecil'=>$item->harga_satuan_kecil,'harga_satuan_besar'=>$item->harga_satuan_besar,'stok_minimal'=>$item->stok_minimal,'deskripsi'=>$item->deskripsi,'tgl_diterima'=>$item->tgl_diterima?$item->tgl_diterima->format('Y-m-d'):null,'tgl_kadaluarsa'=>$item->tgl_kadaluarsa?$item->tgl_kadaluarsa->format('Y-m-d'):null]) }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Edit">
+                            <button @click="editItem = JSON.parse($el.dataset.item); openEdit = true" data-item="{{ json_encode(['id'=>$item->id,'nama_barang'=>$item->nama_barang,'kategori_id'=>$item->kategori_id,'sumber_anggaran_id'=>$item->sumber_anggaran_id,'gudang_id'=>$item->gudang_id,'satuan_kecil_id'=>$item->satuan_kecil_id,'harga_satuan_kecil'=>$item->harga_satuan_kecil,'stok_minimal'=>$item->stok_minimal,'deskripsi'=>$item->deskripsi,'tgl_kadaluarsa'=>$item->tgl_kadaluarsa?$item->tgl_kadaluarsa->format('Y-m-d'):null]) }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Edit">
                                 <i class="fas fa-edit text-xs"></i>
                             </button>
                             @endcan
@@ -254,15 +246,19 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-3 gap-4">
                     <div class="flex flex-col gap-1.5">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Satuan Kecil <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Satuan <span class="text-red-500">*</span></label>
                         <select name="satuan_kecil_id" required class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
                             <option value="">Pilih Satuan</option>
                             @foreach(\App\Models\Unit::all() as $unit)
                                 <option value="{{ $unit->id }}" {{ old('satuan_kecil_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Stok Awal</label>
+                        <input type="number" name="stok_saat_ini_kecil" value="{{ old('stok_saat_ini_kecil', 0) }}" min="0" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Stok Minimal <span class="text-red-500">*</span></label>
@@ -273,7 +269,7 @@
                 <!-- Toggle Advanced Options -->
                 <div class="border-t pt-4 dark:border-gray-700">
                     <button type="button" @click="showAdvanced = !showAdvanced" class="flex items-center text-xs font-bold text-primary-600 hover:text-primary-700 outline-none">
-                        <span x-text="showAdvanced ? 'Sembunyikan Opsi Lanjutan' : 'Tampilkan Opsi Lanjutan (Lokasi, Satuan Besar, Anggaran, dll.)'"></span>
+                        <span x-text="showAdvanced ? 'Sembunyikan Opsi Lanjutan' : 'Tampilkan Opsi Lanjutan (Lokasi, Anggaran, dll.)'"></span>
                         <i class="fas ml-1.5" :class="showAdvanced ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </button>
                 </div>
@@ -282,50 +278,14 @@
                 <div x-show="showAdvanced" x-transition class="space-y-5">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5">
-                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">
-                                Kode Barang
-                                <span class="text-xs font-normal text-gray-400 ml-1">(Otomatis jika kosong)</span>
-                            </label>
-                            <input type="text" name="kode_barang" value="{{ old('kode_barang') }}" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none" placeholder="Contoh: BRG-001">
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Lokasi Barang</label>
-                            <select name="lokasi_barang_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                                <option value="">Pilih Lokasi</option>
-                                @foreach(\App\Models\ItemLocation::all() as $loc)
-                                    <option value="{{ $loc->id }}" {{ old('lokasi_barang_id') == $loc->id ? 'selected' : '' }}>{{ $loc->nama_lokasi }}</option>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Gudang Penyimpanan</label>
+                            <select name="gudang_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
+                                <option value="">Pilih Gudang</option>
+                                @foreach($warehouses as $wh)
+                                    <option value="{{ $wh->id }}" {{ old('gudang_id') == $wh->id ? 'selected' : '' }}>{{ $wh->nama_gudang }}</option>
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 border-t pt-4 dark:border-navy-700">
-                        <div class="space-y-4">
-                            <p class="text-xs font-bold text-blue-600 uppercase tracking-widest">Harga Satuan Kecil</p>
-                            <div class="flex flex-col gap-1.5">
-                                <label class="block text-xs font-medium text-gray-500">Harga (Rp)</label>
-                                <input type="number" name="harga_satuan_kecil" value="{{ old('harga_satuan_kecil') }}" placeholder="0" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                            <p class="text-xs font-bold text-purple-600 uppercase tracking-widest">Konfigurasi Satuan Besar</p>
-                            <div class="flex flex-col gap-1.5">
-                                <label class="block text-xs font-medium text-gray-500">Satuan</label>
-                                <select name="satuan_besar_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                                    <option value="">— Tidak Ada —</option>
-                                    @foreach(\App\Models\Unit::all() as $unit)
-                                        <option value="{{ $unit->id }}" {{ old('satuan_besar_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="flex flex-col gap-1.5">
-                                <label class="block text-xs font-medium text-gray-500">Harga (Rp)</label>
-                                <input type="number" name="harga_satuan_besar" value="{{ old('harga_satuan_besar') }}" placeholder="0" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5">
                             <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Sumber Anggaran</label>
                             <select name="sumber_anggaran_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
@@ -335,21 +295,22 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 border-t pt-4 dark:border-navy-700">
                         <div class="flex flex-col gap-1.5">
-                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Deskripsi</label>
-                            <textarea name="deskripsi" rows="2" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none" placeholder="Keterangan tambahan...">{{ old('deskripsi') }}</textarea>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Harga Satuan (Rp)</label>
+                            <input type="number" name="harga_satuan_kecil" value="{{ old('harga_satuan_kecil') }}" placeholder="0" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Tanggal Kadaluarsa</label>
+                            <input type="date" name="tgl_kadaluarsa" value="{{ old('tgl_kadaluarsa') }}" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-1.5">
-                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Tgl Diterima</label>
-                            <input type="date" name="tgl_diterima" value="{{ old('tgl_diterima', now()->format('Y-m-d')) }}" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Tgl Kadaluarsa</label>
-                            <input type="date" name="tgl_kadaluarsa" value="{{ old('tgl_kadaluarsa') }}" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                        </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Deskripsi</label>
+                        <textarea name="deskripsi" rows="2" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none" placeholder="Keterangan tambahan...">{{ old('deskripsi') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -395,11 +356,11 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Lokasi Barang</label>
-                        <select name="lokasi_barang_id" x-model="editItem.lokasi_barang_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                            <option value="">Pilih Lokasi</option>
-                            @foreach(\App\Models\ItemLocation::all() as $loc)
-                                <option value="{{ $loc->id }}" {{ old('lokasi_barang_id') == $loc->id ? 'selected' : '' }}>{{ $loc->nama_lokasi }}</option>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Gudang Penyimpanan</label>
+                        <select name="gudang_id" x-model="editItem.gudang_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
+                            <option value="">Pilih Gudang</option>
+                            @foreach($warehouses as $wh)
+                                <option value="{{ $wh->id }}">{{ $wh->nama_gudang }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -408,42 +369,28 @@
                         <select name="sumber_anggaran_id" x-model="editItem.sumber_anggaran_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
                             <option value="">Pilih Sumber</option>
                             @foreach(\App\Models\BudgetSource::all() as $source)
-                                <option value="{{ $source->id }}" {{ old('sumber_anggaran_id') == $source->id ? 'selected' : '' }}>{{ $source->nama_sumber }}</option>
+                                <option value="{{ $source->id }}">{{ $source->nama_sumber }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 border-t pt-4 dark:border-gray-700">
+                <div class="grid grid-cols-1 gap-4 border-t pt-4 dark:border-gray-700">
                     <div class="space-y-4">
-                        <p class="text-xs font-bold text-blue-600 uppercase tracking-widest">Satuan Kecil</p>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="block text-xs font-medium text-gray-500">Satuan</label>
-                            <select name="satuan_kecil_id" x-model="editItem.satuan_kecil_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                                @foreach(\App\Models\Unit::all() as $unit)
-                                    <option value="{{ $unit->id }}" {{ old('satuan_kecil_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="block text-xs font-medium text-gray-500">Harga (Rp)</label>
-                            <input type="number" name="harga_satuan_kecil" x-model="editItem.harga_satuan_kecil" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <p class="text-xs font-bold text-purple-600 uppercase tracking-widest">Satuan Besar</p>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="block text-xs font-medium text-gray-500">Satuan (Opsional)</label>
-                            <select name="satuan_besar_id" x-model="editItem.satuan_besar_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                                <option value="">— Tidak Ada —</option>
-                                @foreach(\App\Models\Unit::all() as $unit)
-                                    <option value="{{ $unit->id }}" {{ old('satuan_besar_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="block text-xs font-medium text-gray-500">Harga (Rp)</label>
-                            <input type="number" name="harga_satuan_besar" x-model="editItem.harga_satuan_besar" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
+                        <p class="text-xs font-bold text-blue-600 uppercase tracking-widest">Detail Satuan & Harga</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="block text-xs font-medium text-gray-500">Satuan</label>
+                                <select name="satuan_kecil_id" x-model="editItem.satuan_kecil_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
+                                    @foreach(\App\Models\Unit::all() as $unit)
+                                        <option value="{{ $unit->id }}" {{ old('satuan_kecil_id') == $unit->id ? 'selected' : '' }}>{{ $unit->nama_satuan }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="block text-xs font-medium text-gray-500">Harga (Rp)</label>
+                                <input type="number" name="harga_satuan_kecil" x-model="editItem.harga_satuan_kecil" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -459,11 +406,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Tgl Diterima</label>
-                        <input type="date" name="tgl_diterima" x-model="editItem.tgl_diterima" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">
-                    </div>
+                <div class="grid grid-cols-1 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Tgl Kadaluarsa</label>
                         <input type="date" name="tgl_kadaluarsa" x-model="editItem.tgl_kadaluarsa" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-navy-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none">

@@ -17,12 +17,17 @@ class WarehouseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_gudang' => 'required|unique:warehouses',
             'nama_gudang' => 'required',
             'lokasi' => 'nullable'
         ]);
 
-        $warehouse = Warehouse::create($request->all());
+        // Auto-generate kode_gudang berdasarkan count + 1
+        $nextNumber = Warehouse::withTrashed()->count() + 1;
+        $kodeGudang = 'GD-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        $warehouse = Warehouse::create(array_merge($request->only(['nama_gudang', 'lokasi']), [
+            'kode_gudang' => $kodeGudang,
+        ]));
         ActivityLog::log("Menambah gudang: {$warehouse->nama_gudang}", "Master Gudang", $request->all());
 
         return redirect()->back()->with('success', 'Gudang berhasil ditambahkan');

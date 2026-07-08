@@ -41,9 +41,25 @@ class ItemService
 
         // Initialize stock cache columns to 0 if not supplied
         $data['stok_saat_ini_kecil'] = $data['stok_saat_ini_kecil'] ?? 0;
-        $data['stok_saat_ini_besar'] = $data['stok_saat_ini_besar'] ?? 0;
 
         $item = $this->itemRepository->create($data);
+
+        // If initial stock is > 0 and warehouse is specified, create stock transaction
+        if ($item->stok_saat_ini_kecil > 0 && !empty($data['gudang_id'])) {
+            \App\Models\StockTransaction::create([
+                'no_referensi'        => 'SA-' . str_pad($item->id, 5, '0', STR_PAD_LEFT) . '-' . date('dmy'),
+                'barang_id'           => $item->id,
+                'gudang_id'           => $data['gudang_id'],
+                'pengguna_id'         => auth()->id() ?? 1,
+                'jenis'               => 'masuk',
+                'jumlah_barang_kecil' => $item->stok_saat_ini_kecil,
+                'penerima_penyerah'   => 'Stok Awal',
+                'keperluan'           => 'Stok Awal Sistem',
+                'keterangan'          => 'Stok awal ditambahkan saat registrasi barang.',
+                'tgl_transaksi'       => now(),
+            ]);
+        }
+
         return $item;
     }
 

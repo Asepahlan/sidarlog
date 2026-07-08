@@ -15,10 +15,5 @@ class Unit extends Model
     {
         return $this->hasMany(Item::class, 'satuan_kecil_id');
     }
-
-    public function itemsBesar()
-    {
-        return $this->hasMany(Item::class, 'satuan_besar_id');
-    }
 }
 

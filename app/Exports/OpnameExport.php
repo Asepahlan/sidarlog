@@ -19,6 +19,7 @@ class OpnameExport implements FromCollection, WithHeadings, WithMapping, WithCus
 {
     protected $filters;
     private int $rowNumber = 0;
+    private $firstRecord = null;
 
     public function __construct(array $filters = [])
     {
@@ -27,12 +28,12 @@ class OpnameExport implements FromCollection, WithHeadings, WithMapping, WithCus
 
     public function startCell(): string
     {
-        return 'A6';
+        return 'A8';
     }
 
     public function collection()
     {
-        $query = StockOpname::with(['barang', 'gudang', 'pengguna']);
+        $query = StockOpname::with(['barang.satuanKecil', 'gudang', 'pengguna']);
 
         if (!empty($this->filters['start_date'])) {
             $query->whereDate('created_at', '>=', $this->filters['start_date']);
@@ -52,23 +53,42 @@ class OpnameExport implements FromCollection, WithHeadings, WithMapping, WithCus
             $query->where('gudang_id', $this->filters['gudang_id']);
         }
 
-        return $query->latest()->get();
+        if (!empty($this->filters['periode'])) {
+            $query->where('periode', $this->filters['periode']);
+        }
+
+        if (!empty($this->filters['tgl_opname'])) {
+            $query->whereDate('tgl_opname', $this->filters['tgl_opname']);
+        }
+
+        if (!empty($this->filters['kategori_id'])) {
+            $query->whereHas('barang', function ($q) {
+                $q->where('kategori_id', $this->filters['kategori_id']);
+            });
+        }
+
+        $records = $query->orderBy('created_at', 'desc')->get();
+        
+        if ($records->isNotEmpty()) {
+            $this->firstRecord = $records->first();
+        }
+
+        return $records;
     }
 
     public function headings(): array
     {
         return [
             'No',
-            'Tanggal',
-            'Barang',
-            'Kode Barang',
-            'Gudang',
+            'Nama Barang',
+            'Satuan',
             'Stok Sistem',
             'Stok Fisik',
             'Selisih',
-            'Status',
+            'Kondisi',
             'Keterangan',
-            'Auditor',
+            'Auditor / Petugas',
+            'Waktu Perekaman',
         ];
     }
 
@@ -77,129 +97,204 @@ class OpnameExport implements FromCollection, WithHeadings, WithMapping, WithCus
         $this->rowNumber++;
 
         $selisih = $opname->selisih;
-        $status  = $selisih == 0 ? 'Match' : ($selisih > 0 ? '+' . $selisih . ' (Lebih)' : $selisih . ' (Kurang)');
+        $statusPrefix = $selisih > 0 ? '+' : '';
 
         return [
             $this->rowNumber,
-            $opname->created_at->format('d/m/Y H:i'),
             $opname->barang->nama_barang ?? '-',
-            $opname->barang->kode_barang ?? '-',
-            $opname->gudang->nama_gudang ?? '-',
+            $opname->barang->satuanKecil->nama_satuan ?? 'Pcs',
             $opname->stok_sistem,
             $opname->stok_fisik,
-            $selisih,
-            $status,
+            $statusPrefix . $selisih,
+            $opname->kondisi_barang ?? 'Baik',
             $opname->keterangan ?? '-',
-            $opname->pengguna->nama_lengkap ?? '-',
+            $opname->petugas_nama ?? $opname->pengguna->nama_lengkap ?? '-',
+            $opname->created_at->format('d/m/Y H:i'),
         ];
     }
 
     public function registerEvents(): array
     {
+        $filters = $this->filters;
+
         return [
-            AfterSheet::class => function (AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) use ($filters) {
                 $sheet   = $event->sheet->getDelegate();
-                $lastCol = 'K';
+                $lastCol = 'J';
                 $lastRow = $sheet->getHighestRow();
 
-                // ─── KOP ─────────────────────────────────────────────────
-                $sheet->mergeCells('A1:A5');
+                // ─── KOP SURAT (baris 1-4) ───────────────────────────────
+                $sheet->mergeCells('A1:A4');
                 $sheet->mergeCells('B1:' . $lastCol . '1');
                 $sheet->mergeCells('B2:' . $lastCol . '2');
                 $sheet->mergeCells('B3:' . $lastCol . '3');
                 $sheet->mergeCells('B4:' . $lastCol . '4');
-                $sheet->mergeCells('B5:' . $lastCol . '5');
 
                 $sheet->setCellValue('B1', 'PEMERINTAH DAERAH KABUPATEN TASIKMALAYA');
                 $sheet->setCellValue('B2', 'BADAN PENANGGULANGAN BENCANA DAERAH');
-                $sheet->setCellValue('B3', 'Jl. Otto Iskandardinata No. 19 Tasikmalaya  |  Telp/Fax (0265) 334111  |  Email: bpbd@tasikmalayakab.go.id');
-                $sheet->setCellValue('B4', 'LAPORAN STOCK OPNAME (AUDIT STOK) — Dicetak: ' . date('d/m/Y H:i'));
-                $sheet->setCellValue('B5', '');
+                $sheet->setCellValue('B3', 'Jl. Otto Iskandardinata No. 19 Tasikmalaya Telp dan Fax (0265) 334111 | bpbd@tasikmalayakab.go.id');
+                $sheet->setCellValue('B4', 'Email: bpbd@tasikmalayakab.go.id & bpbd.tasikmalayakab@gmail.com  |  TASIKMALAYA - 46113');
 
-                $sheet->getStyle('B1')->getFont()->setBold(true)->setSize(12);
+                $sheet->getStyle('B1')->getFont()->setBold(true)->setSize(11)->setName('Times New Roman');
                 $sheet->getStyle('B1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('B2')->getFont()->setBold(true)->setSize(15);
+                $sheet->getStyle('B2')->getFont()->setBold(true)->setSize(14)->setName('Times New Roman');
                 $sheet->getStyle('B2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('B3')->getFont()->setSize(8)->getColor()->setRGB('555555');
-                $sheet->getStyle('B3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('B4')->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('92400E');
-                $sheet->getStyle('B4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('B3:B4')->getFont()->setSize(8.5)->setName('Times New Roman');
+                $sheet->getStyle('B3:B4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                $sheet->getStyle('A5:' . $lastCol . '5')->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
-                $sheet->getStyle('A5:' . $lastCol . '5')->getBorders()->getBottom()->getColor()->setRGB('D97706');
+                // Border double garis hitam tebal di baris 4 Kop
+                $sheet->getStyle('A4:' . $lastCol . '4')->getBorders()->getBottom()->setBorderStyle(Border::BORDER_DOUBLE);
 
                 $sheet->getRowDimension(1)->setRowHeight(18);
-                $sheet->getRowDimension(2)->setRowHeight(26);
-                $sheet->getRowDimension(3)->setRowHeight(14);
-                $sheet->getRowDimension(4)->setRowHeight(16);
-                $sheet->getRowDimension(5)->setRowHeight(6);
-                $sheet->getRowDimension(6)->setRowHeight(22);
+                $sheet->getRowDimension(2)->setRowHeight(24);
+                $sheet->getRowDimension(3)->setRowHeight(13);
+                $sheet->getRowDimension(4)->setRowHeight(13);
 
+                // Logo
                 $logoPath = public_path('img/logo-daerah.png');
                 if (file_exists($logoPath)) {
                     $drawing = new Drawing();
                     $drawing->setName('Logo BPBD');
                     $drawing->setPath($logoPath);
-                    $drawing->setHeight(85);
+                    $drawing->setHeight(65);
                     $drawing->setCoordinates('A1');
-                    $drawing->setOffsetX(5)->setOffsetY(3);
+                    $drawing->setOffsetX(15)->setOffsetY(2);
                     $drawing->setWorksheet($sheet);
                 }
 
-                // Header tabel
-                $sheet->getStyle('A6:' . $lastCol . '6')->applyFromArray([
-                    'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 9],
-                    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D97706']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
-                ]);
+                // ─── JUDUL DOKUMEN & SUBTITLE (baris 5-7) ───────────────
+                $sheet->mergeCells('A5:' . $lastCol . '5');
+                $sheet->mergeCells('A6:' . $lastCol . '6');
 
-                // Data rows
-                if ($lastRow > 6) {
-                    $sheet->getStyle('A7:' . $lastCol . $lastRow)->applyFromArray([
-                        'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'CCCCCC']]],
-                        'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
+                $sheet->setCellValue('A5', 'LAPORAN HASIL STOCK OPNAME (AUDIT STOK)');
+                
+                $nomorDok = 'SO/' . (isset($filters['periode']) ? str_replace(' ', '-', $filters['periode']) : date('Y-m')) . '/' . date('dmy');
+                if ($this->firstRecord && !empty($this->firstRecord->nomor_stock_opname)) {
+                    $nomorDok = $this->firstRecord->nomor_stock_opname;
+                }
+                
+                $sheet->setCellValue('A6', 'Nomor : ' . $nomorDok);
+
+                $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(12)->setName('Times New Roman')->setUnderline(true);
+                $sheet->getStyle('A5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A6')->getFont()->setSize(10)->setName('Times New Roman');
+                $sheet->getStyle('A6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getRowDimension(5)->setRowHeight(20);
+                $sheet->getRowDimension(6)->setRowHeight(16);
+
+                // Pastikan gridlines Excel selalu terlihat
+                $sheet->setShowGridlines(true);
+
+                // Style Header Tabel
+                $sheet->getStyle('A8:' . $lastCol . '8')->applyFromArray([
+                    'font'      => ['bold' => true, 'name' => 'Times New Roman', 'size' => 9],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
+                    'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
+                    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F2F2F2']],
+                ]);
+                $sheet->getRowDimension(8)->setRowHeight(24);
+
+                // ─── DATA ROWS STYLING ─────────────────────────────────
+                if ($lastRow > 8) {
+                    $sheet->getStyle('A9:' . $lastCol . $lastRow)->applyFromArray([
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
+                        'font'    => ['name' => 'Times New Roman', 'size' => 9],
                     ]);
 
-                    for ($r = 7; $r <= $lastRow; $r++) {
-                        if ($r % 2 === 0) {
-                            $sheet->getStyle('A' . $r . ':' . $lastCol . $r)
-                                  ->getFill()->setFillType(Fill::FILL_SOLID)
-                                  ->getStartColor()->setRGB('FFFBEB');
+                    for ($r = 9; $r <= $lastRow; $r++) {
+                        $sheet->getStyle('A' . $r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                        $sheet->getStyle('C' . $r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                        
+                        $sheet->getStyle('D' . $r . ':F' . $r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                        $sheet->getStyle('D' . $r . ':F' . $r)->getNumberFormat()->setFormatCode('#,##0;-#,##0;"-"');
+                        
+                        $sheet->getStyle('G' . $r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                        $sheet->getStyle('J' . $r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                        // Berikan warna selisih jika ada perbedaan (sekarang kolom F karena Kode Barang dihapus)
+                        $selisihCell = $sheet->getCell('F' . $r)->getValue();
+                        $selisihVal = (int)$selisihCell;
+                        if ($selisihVal > 0) {
+                            $sheet->getStyle('F' . $r)->getFont()->getColor()->setRGB('1E40AF'); // Blue for excess
+                            $sheet->getStyle('F' . $r)->getFont()->setBold(true);
+                        } elseif ($selisihVal < 0) {
+                            $sheet->getStyle('F' . $r)->getFont()->getColor()->setRGB('B91C1C'); // Red for deficit
+                            $sheet->getStyle('F' . $r)->getFont()->setBold(true);
                         }
-                        $statusVal = $sheet->getCell('I' . $r)->getValue();
-                        if (str_contains((string)$statusVal, 'Match')) {
-                            $sheet->getStyle('I' . $r)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('DCFCE7');
-                            $sheet->getStyle('I' . $r)->getFont()->getColor()->setRGB('15803D');
-                        } elseif (str_contains((string)$statusVal, 'Lebih')) {
-                            $sheet->getStyle('I' . $r)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('DBEAFE');
-                            $sheet->getStyle('I' . $r)->getFont()->getColor()->setRGB('1E40AF');
-                        } elseif (str_contains((string)$statusVal, 'Kurang')) {
-                            $sheet->getStyle('I' . $r)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FEE2E2');
-                            $sheet->getStyle('I' . $r)->getFont()->getColor()->setRGB('B91C1C');
-                        }
-                        $sheet->getStyle('I' . $r)->getFont()->setBold(true);
-                        $sheet->getStyle('I' . $r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                     }
                 }
 
-                // Column widths
-                $sheet->getColumnDimension('A')->setWidth(6);
-                $sheet->getColumnDimension('B')->setWidth(16);
-                $sheet->getColumnDimension('C')->setWidth(28);
-                $sheet->getColumnDimension('D')->setWidth(14);
-                $sheet->getColumnDimension('E')->setWidth(18);
-                $sheet->getColumnDimension('F')->setWidth(12);
-                $sheet->getColumnDimension('G')->setWidth(12);
-                $sheet->getColumnDimension('H')->setWidth(10);
-                $sheet->getColumnDimension('I')->setWidth(14);
-                $sheet->getColumnDimension('J')->setWidth(22);
-                $sheet->getColumnDimension('K')->setWidth(18);
+                // ─── TANDA TANGAN (SIGNATURES) ──────────────────────────
+                $petugasNama = $this->firstRecord->petugas_nama ?? '......................................';
+                $petugasNip = $this->firstRecord->petugas_nip ?? '-';
+                
+                $kepalaGudangNama = $this->firstRecord->kepala_gudang_nama ?? '......................................';
+                $kepalaGudangNip = $this->firstRecord->kepala_gudang_nip ?? '-';
+                
+                $mengetahuiNama = $this->firstRecord->mengetahui_nama ?? 'RONI, A.Ks., M.M';
+                $mengetahuiNip = $this->firstRecord->mengetahui_nip ?? '19690901 199303 1 004';
 
-                $footerRow = $lastRow + 2;
-                $sheet->mergeCells('A' . $footerRow . ':' . $lastCol . $footerRow);
-                $sheet->setCellValue('A' . $footerRow, 'Dicetak oleh SIDARLOG — Sistem Manajemen Logistik BPBD Kab. Tasikmalaya | ' . date('d/m/Y H:i:s'));
-                $sheet->getStyle('A' . $footerRow)->getFont()->setSize(8)->getColor()->setRGB('888888');
-                $sheet->getStyle('A' . $footerRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $tglCetakText = 'Tasikmalaya, ' . Carbon::now()->translatedFormat('d F Y');
+
+                $sigStartRow = $lastRow + 2;
+                
+                $sheet->setCellValue('B' . $sigStartRow, 'Petugas Stock Opname,');
+                $sheet->setCellValue('E' . $sigStartRow, 'Mengetahui,');
+                $sheet->setCellValue('E' . ($sigStartRow + 1), 'Kepala Pelaksana BPBD');
+                $sheet->setCellValue('H' . $sigStartRow, $tglCetakText);
+                $sheet->setCellValue('H' . ($sigStartRow + 1), 'Kepala Gudang,');
+
+                $sheet->getStyle('B' . $sigStartRow)->getFont()->setBold(true)->setName('Times New Roman')->setSize(9.5);
+                $sheet->getStyle('B' . $sigStartRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getStyle('E' . $sigStartRow . ':E' . ($sigStartRow + 1))->getFont()->setBold(true)->setName('Times New Roman')->setSize(9.5);
+                $sheet->getStyle('E' . $sigStartRow . ':E' . ($sigStartRow + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                
+                $sheet->getStyle('H' . $sigStartRow . ':H' . ($sigStartRow + 1))->getFont()->setBold(true)->setName('Times New Roman')->setSize(9.5);
+                $sheet->getStyle('H' . $sigStartRow . ':H' . ($sigStartRow + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                // Spasi tanda tangan
+                $sigNameRow = $sigStartRow + 5;
+                
+                $sheet->setCellValue('B' . $sigNameRow, $petugasNama);
+                if ($petugasNip && $petugasNip !== '-') {
+                    $sheet->setCellValue('B' . ($sigNameRow + 1), 'NIP. ' . $petugasNip);
+                }
+
+                $sheet->setCellValue('E' . $sigNameRow, $mengetahuiNama);
+                if ($mengetahuiNip && $mengetahuiNip !== '-') {
+                    $sheet->setCellValue('E' . ($sigNameRow + 1), 'NIP. ' . $mengetahuiNip);
+                }
+
+                $sheet->setCellValue('H' . $sigNameRow, $kepalaGudangNama);
+                if ($kepalaGudangNip && $kepalaGudangNip !== '-') {
+                    $sheet->setCellValue('H' . ($sigNameRow + 1), 'NIP. ' . $kepalaGudangNip);
+                }
+
+                $sheet->getStyle('B' . $sigNameRow)->getFont()->setBold(true)->setUnderline(true)->setName('Times New Roman')->setSize(9.5);
+                $sheet->getStyle('B' . ($sigNameRow + 1))->getFont()->setName('Times New Roman')->setSize(8.5);
+                $sheet->getStyle('B' . $sigNameRow . ':B' . ($sigNameRow + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getStyle('E' . $sigNameRow)->getFont()->setBold(true)->setUnderline(true)->setName('Times New Roman')->setSize(9.5);
+                $sheet->getStyle('E' . ($sigNameRow + 1))->getFont()->setName('Times New Roman')->setSize(8.5);
+                $sheet->getStyle('E' . $sigNameRow . ':E' . ($sigNameRow + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getStyle('H' . $sigNameRow)->getFont()->setBold(true)->setUnderline(true)->setName('Times New Roman')->setSize(9.5);
+                $sheet->getStyle('H' . ($sigNameRow + 1))->getFont()->setName('Times New Roman')->setSize(8.5);
+                $sheet->getStyle('H' . $sigNameRow . ':H' . ($sigNameRow + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                // ─── COLUMN WIDTHS ──────────────────────────────────────
+                $sheet->getColumnDimension('A')->setWidth(6);   // No
+                $sheet->getColumnDimension('B')->setWidth(26);  // Nama Barang
+                $sheet->getColumnDimension('C')->setWidth(12);  // Satuan
+                $sheet->getColumnDimension('D')->setWidth(15);  // Stok Sistem
+                $sheet->getColumnDimension('E')->setWidth(15);  // Stok Fisik
+                $sheet->getColumnDimension('F')->setWidth(15);  // Selisih
+                $sheet->getColumnDimension('G')->setWidth(15);  // Kondisi
+                $sheet->getColumnDimension('H')->setWidth(24);  // Keterangan
+                $sheet->getColumnDimension('I')->setWidth(24);  // Auditor / Petugas
+                $sheet->getColumnDimension('J')->setWidth(18);  // Waktu Perekaman
             },
         ];
     }

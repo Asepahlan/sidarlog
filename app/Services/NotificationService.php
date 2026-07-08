@@ -26,7 +26,7 @@ class NotificationService
         }
 
         // Eager load relationships to prevent N+1 queries during alerts
-        $item->loadMissing(['lokasiBarang', 'satuanKecil']);
+        $item->loadMissing(['gudangPenyimpanan', 'satuanKecil']);
 
         $users = User::all();
 

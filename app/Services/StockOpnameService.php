@@ -62,7 +62,6 @@ class StockOpnameService
                     'pengguna_id'       => Auth::id(),
                     'jenis'         => 'penyesuaian',
                     'jumlah_barang_kecil'  => $selisih,
-                    'jumlah_barang_besar'  => 0,
                     'no_referensi'  => 'ADJ-' . now()->format('YmdHis'),
                     'tgl_transaksi' => now(),
                     'keterangan'    => "Penyesuaian otomatis dari Stock Opname #{$opname->id}",
@@ -76,6 +75,165 @@ class StockOpnameService
             \App\Services\NotificationService::checkAndNotifyForItem($item);
 
             return $opname;
+        });
+    }
+
+    public function saveBatchOpname(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            $gudangId = $data['gudang_id'];
+            $nomorSo  = $data['nomor_stock_opname'];
+            $periode  = $data['periode'];
+            $tglOpname = $data['tgl_opname'];
+            
+            $petugasNama     = $data['petugas_nama'] ?? null;
+            $petugasNip      = $data['petugas_nip'] ?? null;
+            $kepalaGudangNama = $data['kepala_gudang_nama'] ?? null;
+            $kepalaGudangNip  = $data['kepala_gudang_nip'] ?? null;
+            $mengetahuiNama  = $data['mengetahui_nama'] ?? null;
+            $mengetahuiNip   = $data['mengetahui_nip'] ?? null;
+            
+            $opnameIds = [];
+
+            foreach ($data['items'] as $itemData) {
+                $barangId    = $itemData['barang_id'];
+                $stokFisik   = (int) $itemData['stok_fisik'];
+                $stokSistem  = (int) $itemData['stok_sistem'];
+                $kondisi     = $itemData['kondisi_barang'] ?? 'Baik';
+                $keterangan  = $itemData['keterangan'] ?? null;
+                $selisih     = $stokFisik - $stokSistem;
+
+                /** @var Item $item */
+                $item = $this->itemRepository->findWithLock($barangId);
+
+                // Cari apakah sudah ada record opname dengan nomor_stock_opname & barang_id ini
+                $existingOpname = \App\Models\StockOpname::where('nomor_stock_opname', $nomorSo)
+                    ->where('barang_id', $barangId)
+                    ->first();
+
+                if ($existingOpname) {
+                    // Update
+                    $oldStokFisik = (int) $existingOpname->stok_fisik;
+                    $diff = $stokFisik - $oldStokFisik;
+
+                    $existingOpname->update([
+                        'periode'            => $periode,
+                        'tgl_opname'         => $tglOpname,
+                        'gudang_id'          => $gudangId,
+                        'pengguna_id'        => Auth::id(),
+                        'stok_sistem'        => $stokSistem,
+                        'stok_fisik'         => $stokFisik,
+                        'selisih'            => $selisih,
+                        'kondisi_barang'     => $kondisi,
+                        'keterangan'         => $keterangan,
+                        'petugas_nama'       => $petugasNama,
+                        'petugas_nip'        => $petugasNip,
+                        'kepala_gudang_nama' => $kepalaGudangNama,
+                        'kepala_gudang_nip'  => $kepalaGudangNip,
+                        'mengetahui_nama'    => $mengetahuiNama,
+                        'mengetahui_nip'     => $mengetahuiNip,
+                    ]);
+
+                    // Jika ada perbedaan stok fisik dari input sebelumnya, update stok item & penyesuaian transaction
+                    if ($diff !== 0) {
+                        $item->stok_saat_ini_kecil = max(0, $item->stok_saat_ini_kecil + $diff);
+                        $item->save();
+
+                        // Cari transaksi penyesuaian terkait untuk di-update
+                        $adjTx = \App\Models\StockTransaction::where('no_referensi', 'ADJ-SO-' . $existingOpname->id)
+                            ->first();
+
+                        if ($adjTx) {
+                            $adjTx->update([
+                                'jumlah_barang_kecil' => $selisih,
+                                'keterangan' => "Penyesuaian otomatis dari Stock Opname #{$existingOpname->id} ($nomorSo)",
+                            ]);
+                        } else if ($selisih !== 0) {
+                            // Buat baru jika sebelumnya selisih 0 tapi sekarang ada selisih
+                            \App\Models\StockTransaction::create([
+                                'barang_id'           => $barangId,
+                                'gudang_id'           => $gudangId,
+                                'pengguna_id'         => Auth::id(),
+                                'jenis'               => 'penyesuaian',
+                                'jumlah_barang_kecil' => $selisih,
+                                'no_referensi'        => 'ADJ-SO-' . $existingOpname->id,
+                                'tgl_transaksi'       => $tglOpname ?? now(),
+                                'keterangan'          => "Penyesuaian otomatis dari Stock Opname #{$existingOpname->id} ($nomorSo)",
+                            ]);
+                        }
+                    } else {
+                        // Jika selisihnya berubah karena stok sistem berubah tapi fisik sama, update jumlah_barang_kecil saja
+                        $adjTx = \App\Models\StockTransaction::where('no_referensi', 'ADJ-SO-' . $existingOpname->id)
+                            ->first();
+                        if ($adjTx) {
+                            if ($selisih === 0) {
+                                $adjTx->delete();
+                            } else {
+                                $adjTx->update([
+                                    'jumlah_barang_kecil' => $selisih,
+                                ]);
+                            }
+                        } else if ($selisih !== 0) {
+                            \App\Models\StockTransaction::create([
+                                'barang_id'           => $barangId,
+                                'gudang_id'           => $gudangId,
+                                'pengguna_id'         => Auth::id(),
+                                'jenis'               => 'penyesuaian',
+                                'jumlah_barang_kecil' => $selisih,
+                                'no_referensi'        => 'ADJ-SO-' . $existingOpname->id,
+                                'tgl_transaksi'       => $tglOpname ?? now(),
+                                'keterangan'          => "Penyesuaian otomatis dari Stock Opname #{$existingOpname->id} ($nomorSo)",
+                            ]);
+                        }
+                    }
+
+                    $opnameIds[] = $existingOpname->id;
+
+                } else {
+                    // Create baru
+                    $opname = \App\Models\StockOpname::create([
+                        'nomor_stock_opname' => $nomorSo,
+                        'periode'            => $periode,
+                        'tgl_opname'         => $tglOpname,
+                        'barang_id'          => $barangId,
+                        'gudang_id'          => $gudangId,
+                        'pengguna_id'        => Auth::id(),
+                        'stok_sistem'        => $stokSistem,
+                        'stok_fisik'         => $stokFisik,
+                        'selisih'            => $selisih,
+                        'kondisi_barang'     => $kondisi,
+                        'keterangan'         => $keterangan,
+                        'petugas_nama'       => $petugasNama,
+                        'petugas_nip'        => $petugasNip,
+                        'kepala_gudang_nama' => $kepalaGudangNama,
+                        'kepala_gudang_nip'  => $kepalaGudangNip,
+                        'mengetahui_nama'    => $mengetahuiNama,
+                        'mengetahui_nip'     => $mengetahuiNip,
+                    ]);
+
+                    if ($selisih !== 0) {
+                        \App\Models\StockTransaction::create([
+                            'barang_id'           => $barangId,
+                            'gudang_id'           => $gudangId,
+                            'pengguna_id'         => Auth::id(),
+                            'jenis'               => 'penyesuaian',
+                            'jumlah_barang_kecil' => $selisih,
+                            'no_referensi'        => 'ADJ-SO-' . $opname->id,
+                            'tgl_transaksi'       => $tglOpname ?? now(),
+                            'keterangan'          => "Penyesuaian otomatis dari Stock Opname #{$opname->id} ($nomorSo)",
+                        ]);
+
+                        $item->stok_saat_ini_kecil = max(0, $item->stok_saat_ini_kecil + $selisih);
+                        $item->save();
+                    }
+
+                    \App\Services\NotificationService::checkAndNotifyForItem($item);
+
+                    $opnameIds[] = $opname->id;
+                }
+            }
+
+            return $opnameIds;
         });
     }
 }

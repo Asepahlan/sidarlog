@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 class RecalculateStock extends Command
 {
     protected $signature   = 'stock:recalculate {--item= : ID spesifik item (opsional)}';
-    protected $description = 'Recalculate and sync stok_saat_ini_kecil/besar from stock transactions';
+    protected $description = 'Recalculate and sync stok_saat_ini_kecil from stock transactions';
 
     public function handle(): int
     {
@@ -32,10 +32,8 @@ class RecalculateStock extends Command
 
         foreach ($items as $item) {
             $kecil = $this->calcStock($item->id, 'jumlah_barang_kecil');
-            $besar = $this->calcStock($item->id, 'jumlah_barang_besar');
 
             $item->stok_saat_ini_kecil = $kecil;
-            $item->stok_saat_ini_besar = $besar;
             $item->save();
 
             $bar->advance();

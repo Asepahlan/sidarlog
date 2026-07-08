@@ -31,36 +31,27 @@ class TransactionService
             $data['pengguna_id']      = Auth::id();
             $data['tgl_transaksi'] = $data['tgl_transaksi'] ?? now();
             $data['jumlah_barang_kecil']  = (int) ($data['jumlah_barang_kecil'] ?? 0);
-            $data['jumlah_barang_besar']  = (int) ($data['jumlah_barang_besar'] ?? 0);
 
             /** @var Item $item */
             $item = $this->itemRepository->findWithLock($data['barang_id']);
 
             if ($type === 'keluar') {
-                // Validate stock is sufficient in chosen warehouse
-                $stokKecilTersedia = $item->getStockKecilInWarehouse($data['gudang_id']);
-                $stokBesarTersedia = $item->getStockBesarInWarehouse($data['gudang_id']);
+                // Validate stock is sufficient using total global stock
+                $stokTersedia = $item->stok_saat_ini_kecil;
 
-                if ($data['jumlah_barang_kecil'] > 0 && $stokKecilTersedia < $data['jumlah_barang_kecil']) {
+                if ($data['jumlah_barang_kecil'] > 0 && $stokTersedia < $data['jumlah_barang_kecil']) {
                     throw ValidationException::withMessages([
-                        'jumlah_barang_kecil' => "Stok tidak mencukupi di gudang terpilih. Stok Kecil tersedia: {$stokKecilTersedia}.",
-                    ]);
-                }
-                if ($data['jumlah_barang_besar'] > 0 && $stokBesarTersedia < $data['jumlah_barang_besar']) {
-                    throw ValidationException::withMessages([
-                        'jumlah_barang_besar' => "Stok tidak mencukupi di gudang terpilih. Stok Besar tersedia: {$stokBesarTersedia}.",
+                        'jumlah_barang_kecil' => "Stok tidak mencukupi. Total stok tersedia: {$stokTersedia} {$item->satuanKecil?->nama_satuan}.",
                     ]);
                 }
 
-                // Deduct from stock cache (using global current stock values)
+                // Deduct from total stock cache
                 $item->stok_saat_ini_kecil = max(0, $item->stok_saat_ini_kecil - $data['jumlah_barang_kecil']);
-                $item->stok_saat_ini_besar = max(0, $item->stok_saat_ini_besar - $data['jumlah_barang_besar']);
                 $item->save();
 
             } elseif ($type === 'masuk') {
                 // Increment stock cache
                 $item->stok_saat_ini_kecil += $data['jumlah_barang_kecil'];
-                $item->stok_saat_ini_besar += $data['jumlah_barang_besar'];
                 $item->save();
             }
 
@@ -69,6 +60,51 @@ class TransactionService
             $tx = $this->transactionRepository->create($data);
 
             return $tx;
+        });
+    }
+
+    public function updateTransaction(StockTransaction $transaction, array $data)
+    {
+        return DB::transaction(function () use ($transaction, $data) {
+            $data['jumlah_barang_kecil'] = (int) ($data['jumlah_barang_kecil'] ?? 0);
+
+            // 1. Rollback old stock effect
+            /** @var Item $oldItem */
+            $oldItem = Item::lockForUpdate()->findOrFail($transaction->barang_id);
+            if ($transaction->jenis === 'keluar') {
+                $oldItem->stok_saat_ini_kecil += $transaction->jumlah_barang_kecil;
+            } elseif ($transaction->jenis === 'masuk') {
+                $oldItem->stok_saat_ini_kecil = max(0, $oldItem->stok_saat_ini_kecil - $transaction->jumlah_barang_kecil);
+            }
+            $oldItem->save();
+
+            // 2. Apply new stock effect
+            /** @var Item $newItem */
+            $newItem = Item::lockForUpdate()->findOrFail($data['barang_id']);
+            if ($transaction->jenis === 'keluar') {
+                $stokTersedia = $newItem->stok_saat_ini_kecil;
+                if ($data['jumlah_barang_kecil'] > 0 && $stokTersedia < $data['jumlah_barang_kecil']) {
+                    // Revert oldItem save if we fail here, but since we are in DB transaction it auto-rollbacks.
+                    throw ValidationException::withMessages([
+                        'jumlah_barang_kecil' => "Stok tidak mencukupi. Total stok tersedia: {$stokTersedia} {$newItem->satuanKecil?->nama_satuan}.",
+                    ]);
+                }
+                $newItem->stok_saat_ini_kecil = max(0, $newItem->stok_saat_ini_kecil - $data['jumlah_barang_kecil']);
+            } elseif ($transaction->jenis === 'masuk') {
+                $newItem->stok_saat_ini_kecil += $data['jumlah_barang_kecil'];
+            }
+            $newItem->save();
+
+            // 3. Update transaction record
+            $transaction->update($data);
+
+            // 4. Trigger notifications
+            \App\Services\NotificationService::checkAndNotifyForItem($oldItem);
+            if ($oldItem->id !== $newItem->id) {
+                \App\Services\NotificationService::checkAndNotifyForItem($newItem);
+            }
+
+            return $transaction;
         });
     }
 

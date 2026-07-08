@@ -39,10 +39,7 @@ class PermissionSeeder extends Seeder
             'gudang.view',
             'gudang.manage',
 
-            // Mutasi
-            'mutasi.view',
-            'mutasi.create',
-            'mutasi.approve',
+
 
             // Transaksi
             'transaksi.masuk.view',
@@ -93,8 +90,7 @@ class PermissionSeeder extends Seeder
             'master.pihak-kesatu', 'master.pihak-kedua', 'master.bap',
             // Gudang full
             'gudang.view', 'gudang.manage',
-            // Mutasi full
-            'mutasi.view', 'mutasi.create', 'mutasi.approve',
+
             // Transaksi full
             'transaksi.masuk.view', 'transaksi.masuk.create',
             'transaksi.keluar.view', 'transaksi.keluar.create',
@@ -116,7 +112,6 @@ class PermissionSeeder extends Seeder
             'gudang.view',
             'transaksi.masuk.view', 'transaksi.masuk.create',
             'transaksi.keluar.view', 'transaksi.keluar.create',
-            'mutasi.view', 'mutasi.create',
             'opname.view', 'opname.create',
         ]);
         echo "  ✓ staff_gudang → 11 permissions\n";
@@ -127,7 +122,6 @@ class PermissionSeeder extends Seeder
             'dashboard.view',
             'barang.view',
             'gudang.view',
-            'mutasi.view', 'mutasi.approve',
             'opname.view',
             'laporan.view', 'laporan.export',
         ]);

@@ -25,7 +25,7 @@ class PushSystemNotifications extends Command
         $beforeCount = DB::table('notifications')->count();
 
         $items = Item::with([
-                'lokasiBarang',
+                'gudangPenyimpanan',
                 'satuanKecil'
             ])
             ->where(function ($query) {

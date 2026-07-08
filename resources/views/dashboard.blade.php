@@ -215,7 +215,7 @@
                                     <span class="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 text-[10px] font-bold rounded-full uppercase">Keluar</span>
                                 @endif
                             </td>
-                            <td class="px-8 py-5"><span class="text-xs font-bold text-gray-900 dark:text-white">{{ number_format($tx->jumlah_barang_kecil) }} / {{ number_format($tx->jumlah_barang_besar) }}</span></td>
+                            <td class="px-8 py-5"><span class="text-xs font-bold text-gray-900 dark:text-white">{{ number_format($tx->jumlah_barang_kecil) }} {{ optional($tx->barang->satuanKecil)->nama_satuan }}</span></td>
                             <td class="px-8 py-5"><span class="text-xs text-gray-500">{{ $tx->gudang->nama_gudang ?? '-' }}</span></td>
                             <td class="px-8 py-5"><span class="text-xs text-gray-400">{{ $tx->tgl_transaksi->diffForHumans() }}</span></td>
                         </tr>
@@ -258,20 +258,6 @@
                             </div>
                         </div>
                         <span class="text-lg font-black text-red-600" x-text="operasional.keluar_hari_ini">{{ $operasional['keluar_hari_ini'] }}</span>
-                    </div>
-
-                    <!-- Mutasi Hari Ini -->
-                    <div class="flex items-center justify-between p-3.5 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100/30 dark:border-indigo-900/30">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-905/20 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mr-3">
-                                <i class="fas fa-shuffle"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-gray-500 uppercase">Mutasi Hari Ini</h4>
-                                <p class="text-xs text-gray-400 mt-0.5">Mutasi antar gudang</p>
-                            </div>
-                        </div>
-                        <span class="text-lg font-black text-indigo-600" x-text="operasional.mutasi_hari_ini">{{ $operasional['mutasi_hari_ini'] }}</span>
                     </div>
 
                     <!-- Opname Bulan Ini -->

@@ -2,202 +2,313 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Stock Opname</title>
+    <title>Laporan Hasil Stock Opname</title>
     <style>
-        @page { margin: 1.5cm 2cm; }
-        * { box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 9pt; color: #1a1a1a; margin: 0; padding: 0; }
-
-        .kop-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-        .kop-logo-cell { width: 90px; vertical-align: middle; text-align: center; }
-        .kop-logo { width: 78px; height: auto; }
-        .kop-logo-placeholder .logo-circle {
-            width: 70px; height: 70px; border-radius: 50%;
-            background: #92400e; display: flex; align-items: center;
-            justify-content: center; margin: 0 auto;
+        @page {
+            size: A4 landscape;
+            margin: 1.2cm 1.5cm;
         }
-        .kop-text-cell { vertical-align: middle; text-align: center; padding: 4px 0; }
-        .kop-instansi-atas { font-size: 10pt; font-weight: normal; }
-        .kop-instansi-nama { font-size: 14pt; font-weight: bold; text-transform: uppercase; }
-        .kop-instansi-info { font-size: 8pt; color: #333; margin-top: 1px; }
-        .kop-divider-top { border-top: 4px solid #d97706; border-bottom: 1.5px solid #d97706; margin-top: 5px; height: 2px; }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 9.5pt;
+            color: #000;
+            line-height: 1.35;
+            margin: 0;
+            padding: 0;
+        }
 
-        .report-title { text-align: center; margin: 10px 0 4px; }
-        .report-title h2 { font-size: 12pt; margin: 0; text-decoration: underline; text-transform: uppercase; color: #d97706; }
-        .meta { margin: 6px 0 6px; font-size: 8pt; color: #555; }
-        .meta span { margin-right: 16px; }
-        .meta strong { color: #1a1a1a; }
-        .filter-info { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 4px 8px; font-size: 8pt; margin-bottom: 10px; color: #92400e; }
+        /* Kop Surat */
+        .kop-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2px;
+        }
+        .kop-logo-cell {
+            width: 85px;
+            vertical-align: middle;
+            text-align: left;
+            padding-bottom: 5px;
+        }
+        .kop-logo {
+            width: 75px;
+            height: auto;
+        }
+        .kop-text-cell {
+            vertical-align: middle;
+            text-align: center;
+            padding-right: 85px; /* balanced alignment with logo width */
+            padding-bottom: 5px;
+        }
+        .kop-pemda {
+            font-size: 11pt;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .kop-instansi {
+            font-size: 14pt;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+        .kop-detail {
+            font-size: 8.5pt;
+            margin-top: 2px;
+        }
+        .kop-divider {
+            border-top: 2.5px solid #000;
+            border-bottom: 0.8px solid #000;
+            height: 2px;
+            margin-bottom: 12px;
+        }
 
-        table.data-table { width: 100%; border-collapse: collapse; font-size: 8pt; }
-        table.data-table thead tr { background: #d97706; color: #fff; }
-        table.data-table thead th { padding: 5px 4px; text-align: left; font-weight: bold; }
-        table.data-table tbody tr:nth-child(even) { background: #fffbeb; }
-        table.data-table tbody td { padding: 4px; border-bottom: 1px solid #fde68a; vertical-align: top; }
+        /* Judul Laporan */
+        .report-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .report-title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: underline;
+            margin: 0 0 2px 0;
+        }
+        .report-doc-number {
+            font-size: 10pt;
+            font-weight: normal;
+            margin: 0 0 8px 0;
+        }
 
-        .badge        { padding: 1px 5px; border-radius: 3px; font-weight: bold; font-size: 7.5pt; }
-        .badge-match  { background: #dcfce7; color: #15803d; }
-        .badge-plus   { background: #dbeafe; color: #1e40af; }
-        .badge-minus  { background: #fee2e2; color: #b91c1c; }
+        /* Informasi Metadata */
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 9.5pt;
+        }
+        .meta-table td {
+            padding: 2px 0;
+            vertical-align: top;
+        }
+        .meta-label {
+            width: 150px;
+        }
+        .meta-separator {
+            width: 15px;
+            text-align: center;
+        }
 
-        .summary { margin-top: 12px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; padding: 7px 10px; font-size: 8.5pt; }
-        .summary table { width: auto; border: none; }
-        .summary td { border: none; padding: 2px 8px; }
-        .summary .lbl { color: #444; font-weight: bold; width: 170px; }
+        /* Tabel Data */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            font-size: 9pt;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #000;
+            padding: 5px 6px;
+            vertical-align: middle;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 9pt;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        
+        /* Auto repeat header on page break */
+        thead {
+            display: table-header-group;
+        }
+        tr {
+            page-break-inside: avoid;
+        }
 
-        .footer { margin-top: 16px; border-top: 1px solid #cbd5e1; padding-top: 5px; font-size: 7.5pt; color: #888; }
-        .footer-inner { display: flex; justify-content: space-between; }
-
-        .sig-section { margin-top: 30px; }
-        .sig-table { width: 100%; border-collapse: collapse; }
-        .sig-table td { width: 50%; vertical-align: top; text-align: center; border: none; padding: 0 10px; }
-        .sig-name { margin-top: 50px; font-weight: bold; }
-        .sig-name .underline { text-decoration: underline; }
+        /* Tanda Tangan */
+        .sig-section {
+            width: 100%;
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+        .sig-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .sig-table td {
+            width: 33.33%;
+            vertical-align: top;
+            text-align: center;
+            padding: 0 10px;
+        }
+        .sig-date {
+            margin-bottom: 5px;
+        }
+        .sig-role {
+            font-weight: bold;
+            min-height: 35px;
+        }
+        .sig-space {
+            height: 55px;
+        }
+        .sig-name {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .sig-nip {
+            font-size: 8.5pt;
+            margin-top: 1px;
+        }
     </style>
 </head>
 <body>
-@php
-    $logoSrc  = null;
-    $logoPath = public_path('img/logo-daerah.png');
-    if (file_exists($logoPath)) {
-        $ext     = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
-        $mime    = $ext === 'png' ? 'image/png' : 'image/jpeg';
-        $logoSrc = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
-    }
-    $selisihPlus  = $opnames->where('selisih', '>', 0)->count();
-    $selisihMinus = $opnames->where('selisih', '<', 0)->count();
-    $match        = $opnames->where('selisih', 0)->count();
-@endphp
+    @php
+        $logoSrc  = null;
+        $logoPath = public_path('img/logo-daerah.png');
+        if (file_exists($logoPath)) {
+            $ext     = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+            $mime    = $ext === 'png' ? 'image/png' : 'image/jpeg';
+            $logoSrc = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+    @endphp
 
+    {{-- KOP SURAT --}}
     <table class="kop-table">
         <tr>
             <td class="kop-logo-cell">
                 @if($logoSrc)
-                    <img src="{{ $logoSrc }}" class="kop-logo" alt="Logo BPBD">
+                    <img src="{{ $logoSrc }}" class="kop-logo" alt="Logo">
                 @else
-                    <div class="kop-logo-placeholder">
-                        <div class="logo-circle">
-                            <span style="font-size:20pt; color:#fff; font-weight:bold;">⚙</span>
-                        </div>
-                    </div>
+                    <div style="font-size: 20pt; font-weight: bold; border: 1px solid #000; padding: 5px; text-align: center;">[LOGO]</div>
                 @endif
             </td>
             <td class="kop-text-cell">
-                <div class="kop-instansi-atas">PEMERINTAH DAERAH KABUPATEN TASIKMALAYA</div>
-                <div class="kop-instansi-nama">BADAN PENANGGULANGAN BENCANA DAERAH</div>
-                <div class="kop-instansi-info">Jl. Otto Iskandardinata No. 19 Tasikmalaya Telp dan Fax (0265) 334111</div>
-                <div class="kop-instansi-info">Email: bpbd@tasikmalayakab.go.id &nbsp;|&nbsp; TASIKMALAYA - 46113</div>
+                <div class="kop-pemda">Pemerintah Daerah Kabupaten Tasikmalaya</div>
+                <div class="kop-instansi">Badan Penanggulangan Bencana Daerah</div>
+                <div class="kop-detail">Jl. Otto Iskandardinata No. 19 Tasikmalaya Telp dan Fax (0265) 334111</div>
+                <div class="kop-detail">Email: bpbd@tasikmalayakab.go.id &nbsp;|&nbsp; TASIKMALAYA - 46113</div>
             </td>
         </tr>
     </table>
-    <div class="kop-divider-top"></div>
+    <div class="kop-divider"></div>
 
-    <div class="report-title">
-        <h2>Laporan Stock Opname (Audit Stok)</h2>
+    {{-- JUDUL LAPORAN --}}
+    <div class="report-header">
+        <h2 class="report-title">LAPORAN HASIL STOCK OPNAME (AUDIT STOK)</h2>
+        <div class="report-doc-number">Nomor : {{ $nomorSo ?? '......................................' }}</div>
     </div>
 
-    <div class="meta">
-        <span><strong>Tanggal Cetak:</strong> {{ date('d/m/Y H:i') }}</span>
-        <span><strong>Total Record:</strong> {{ $opnames->count() }} opname</span>
-        <span><strong>Match:</strong> {{ $match }}</span>
-        <span><strong>Lebih:</strong> {{ $selisihPlus }}</span>
-        <span><strong>Kurang:</strong> {{ $selisihMinus }}</span>
-    </div>
+    {{-- METADATA LAPORAN --}}
+    <table class="meta-table">
+        <tr>
+            <td class="meta-label">Nama Gudang</td>
+            <td class="meta-separator">:</td>
+            <td><strong>{{ $gudang->nama_gudang }}</strong></td>
+        </tr>
+        <tr>
+            <td class="meta-label">Periode Stock Opname</td>
+            <td class="meta-separator">:</td>
+            <td>{{ $periode }}</td>
+        </tr>
+        <tr>
+            <td class="meta-label">Tanggal Cetak / Laporan</td>
+            <td class="meta-separator">:</td>
+            <td>{{ $tglCetak }}</td>
+        </tr>
+    </table>
 
-    @if(!empty($filterInfo))
-    <div class="filter-info">&#128269; Filter aktif: {{ $filterInfo }}</div>
-    @endif
-
+    {{-- TABEL DATA --}}
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width:22px">No</th>
-                <th style="width:75px">Tanggal</th>
-                <th>Barang</th>
-                <th>Gudang</th>
-                <th style="width:55px; text-align:right">Sistem</th>
-                <th style="width:55px; text-align:right">Fisik</th>
-                <th style="width:65px; text-align:center">Selisih</th>
-                <th>Keterangan</th>
-                <th>Auditor</th>
+                <th style="width: 5%">No</th>
+                <th style="width: 12%">Kode Barang</th>
+                <th style="width: 25%">Nama Barang</th>
+                <th style="width: 10%">Satuan</th>
+                <th style="width: 10%">Stok Sistem</th>
+                <th style="width: 10%">Stok Fisik</th>
+                <th style="width: 10%">Selisih</th>
+                <th style="width: 10%">Kondisi</th>
+                <th style="width: 18%">Keterangan</th>
             </tr>
         </thead>
         <tbody>
             @forelse($opnames as $index => $op)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td style="white-space:nowrap; font-size:7.5pt;">
-                    {{ $op->created_at ? $op->created_at->format('d/m/Y') : '-' }}<br>
-                    <span style="color:#888">{{ $op->created_at ? $op->created_at->format('H:i') : '' }}</span>
-                </td>
-                <td>
-                    <strong>{{ $op->barang->nama_barang ?? '-' }}</strong><br>
-                    <small style="color:#888; font-family:monospace; font-size:7pt;">{{ $op->barang->kode_barang ?? '' }}</small>
-                </td>
-                <td>{{ $op->gudang->nama_gudang ?? '-' }}</td>
-                <td style="text-align:right; font-weight:bold;">{{ number_format($op->stok_sistem) }}</td>
-                <td style="text-align:right; font-weight:bold;">{{ number_format($op->stok_fisik) }}</td>
-                <td style="text-align:center;">
-                    @if($op->selisih == 0)
-                        <span class="badge badge-match">Match</span>
-                    @elseif($op->selisih > 0)
-                        <span class="badge badge-plus">+{{ $op->selisih }}</span>
-                    @else
-                        <span class="badge badge-minus">{{ $op->selisih }}</span>
-                    @endif
-                </td>
-                <td style="font-size:7.5pt;">{{ $op->keterangan ?? '-' }}</td>
-                <td style="font-size:7.5pt;">{{ $op->pengguna->nama_lengkap ?? '-' }}</td>
-            </tr>
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td class="text-center">{{ $op->barang->kode_barang ?? '-' }}</td>
+                    <td>{{ $op->barang->nama_barang ?? '-' }}</td>
+                    <td class="text-center">{{ $op->barang->satuanKecil->nama_satuan ?? 'Pcs' }}</td>
+                    <td class="text-right">{{ number_format($op->stok_sistem) }}</td>
+                    <td class="text-right">{{ number_format($op->stok_fisik) }}</td>
+                    <td class="text-right" style="font-weight: bold; color: {{ $op->selisih == 0 ? '#000' : ($op->selisih > 0 ? '#0d5885' : '#b91c1c') }}">
+                        {{ $op->selisih > 0 ? '+' : '' }}{{ number_format($op->selisih) }}
+                    </td>
+                    <td class="text-center">{{ $op->kondisi_barang ?? 'Baik' }}</td>
+                    <td>{{ $op->keterangan ?? '-' }}</td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="9" style="text-align:center; color:#888; padding:18px; font-style:italic;">
-                    Tidak ada data riwayat stock opname.
-                </td>
-            </tr>
+                <tr>
+                    <td colspan="9" class="text-center" style="padding: 20px; font-style: italic; color: #555;">
+                        Tidak ada data stock opname untuk dicetak.
+                    </td>
+                </tr>
             @endforelse
         </tbody>
     </table>
 
-    <div class="summary">
-        <strong>Ringkasan Hasil Opname:</strong>
-        <table>
-            <tr>
-                <td class="lbl">&#9989; Stok Match (selisih = 0)</td>
-                <td>: {{ $match }} item</td>
-            </tr>
-            <tr>
-                <td class="lbl">&#128200; Stok Lebih (selisih +)</td>
-                <td>: {{ $selisihPlus }} item (total lebih: {{ $opnames->where('selisih', '>', 0)->sum('selisih') }} unit)</td>
-            </tr>
-            <tr>
-                <td class="lbl">&#128201; Stok Kurang (selisih -)</td>
-                <td>: {{ $selisihMinus }} item (total kurang: {{ abs($opnames->where('selisih', '<', 0)->sum('selisih')) }} unit)</td>
-            </tr>
-        </table>
-    </div>
-
+    {{-- TANDA TANGAN --}}
     <div class="sig-section">
         <table class="sig-table">
             <tr>
-                <td></td>
                 <td>
-                    <div>Tasikmalaya, {{ date('d/m/Y') }}</div>
-                    <div>Kepala Pelaksana BPBD Kabupaten Tasikmalaya</div>
-                    <div class="sig-name">
-                        <span class="underline">RONI, A.Ks., M.M</span><br>
-                        <span style="font-size:8pt; font-weight:normal;">NIP. 19690901 199303 1 004</span>
+                    <div class="sig-date">&nbsp;</div>
+                    <div class="sig-role">Petugas Stock Opname,</div>
+                    <div class="sig-space"></div>
+                    <div>
+                        <span class="sig-name">{{ $petugas['nama'] }}</span>
+                        @if(!empty($petugas['nip']) && $petugas['nip'] !== '-')
+                            <div class="sig-nip">NIP. {{ $petugas['nip'] }}</div>
+                        @endif
+                    </div>
+                </td>
+                <td>
+                    <div class="sig-date">&nbsp;</div>
+                    <div class="sig-role">Mengetahui,<br>Kepala Pelaksana BPBD</div>
+                    <div class="sig-space"></div>
+                    <div>
+                        <span class="sig-name">{{ $mengetahui['nama'] }}</span>
+                        @if(!empty($mengetahui['nip']) && $mengetahui['nip'] !== '-')
+                            <div class="sig-nip">NIP. {{ $mengetahui['nip'] }}</div>
+                        @endif
+                    </div>
+                </td>
+                <td>
+                    <div class="sig-date">Tasikmalaya, {{ $tglCetak }}</div>
+                    <div class="sig-role">Kepala Gudang,</div>
+                    <div class="sig-space"></div>
+                    <div>
+                        <span class="sig-name">{{ $kepalaGudang['nama'] }}</span>
+                        @if(!empty($kepalaGudang['nip']) && $kepalaGudang['nip'] !== '-')
+                            <div class="sig-nip">NIP. {{ $kepalaGudang['nip'] }}</div>
+                        @endif
                     </div>
                 </td>
             </tr>
         </table>
-    </div>
-
-    <div class="footer">
-        <div class="footer-inner">
-            <span>Dicetak oleh SIDARLOG &mdash; Sistem Manajemen Logistik BPBD Kab. Tasikmalaya</span>
-            <span>{{ date('d/m/Y H:i:s') }}</span>
-        </div>
     </div>
 
 </body>

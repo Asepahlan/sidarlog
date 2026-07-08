@@ -14,7 +14,7 @@ class StockTransactionObserver
     {
         $itemName = $tx->barang ? $tx->barang->nama_barang : 'ID #' . $tx->barang_id;
         ActivityLog::log(
-            "Transaksi {$tx->jenis}: {$itemName} | Kecil: {$tx->jumlah_barang_kecil} | Besar: {$tx->jumlah_barang_besar}",
+            "Transaksi {$tx->jenis}: {$itemName} | Jumlah: {$tx->jumlah_barang_kecil}",
             "Inventory",
             $tx->toArray()
         );

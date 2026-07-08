@@ -385,11 +385,14 @@
                     </x-sidebar-dropdown>
                     @endcan
 
+                    {{-- Hide Stock Opname Sidebar Link --}}
+                    {{--
                     @can('opname.view')
                     <x-sidebar-dropdown title="Stock Opname" icon="fas fa-clipboard-check" :active="request()->is('stock-opname*')">
                         <x-sidebar-submenu-item title="Stock Opname" href="/stock-opname" :active="request()->is('stock-opname*')" />
                     </x-sidebar-dropdown>
                     @endcan
+                    --}}
                 </div>
                 @endcanany
 
@@ -401,11 +404,12 @@
                     @can('laporan.view')
                     <x-sidebar-dropdown title="Laporan" icon="fas fa-file-invoice-dollar" :active="request()->is('laporan*')">
                         <x-sidebar-submenu-item title="Laporan Barang" href="/laporan" :active="request()->is('laporan')" />
-                        <x-sidebar-submenu-item title="Laporan Barang Masuk" href="/barang-masuk" :active="request()->is('barang-masuk')" />
-                        <x-sidebar-submenu-item title="Laporan Barang Keluar" href="/barang-keluar" :active="request()->is('barang-keluar')" />
-                        <x-sidebar-submenu-item title="Laporan Stock Opname" href="/stock-opname" :active="request()->is('stock-opname*')" />
+                        <!-- <x-sidebar-submenu-item title="Laporan Barang Masuk" href="/barang-masuk" :active="request()->is('barang-masuk')" /> -->
+                        <!-- <x-sidebar-submenu-item title="Laporan Barang Keluar" href="/barang-keluar" :active="request()->is('barang-keluar')" /> -->
+                        {{-- Hide Laporan Stock Opname subitem --}}
+                        {{-- <x-sidebar-submenu-item title="Laporan Stock Opname" href="/stock-opname" :active="request()->is('stock-opname*')" /> --}}
                         @can('laporan.export')
-                        <x-sidebar-submenu-item title="Export PDF / Excel" href="/laporan" :active="false" />
+                        <!-- <x-sidebar-submenu-item title="Export PDF / Excel" href="/laporan" :active="false" /> -->
                         @endcan
                     </x-sidebar-dropdown>
                     @endcan
@@ -430,18 +434,15 @@
                 @endcanany
 
                 <!-- Master Data -->
-                @canany(['barang.view', 'master.kategori', 'master.satuan', 'master.lokasi', 'gudang.view', 'mutasi.view'])
+                @canany(['barang.view', 'master.kategori', 'master.satuan', 'master.lokasi', 'gudang.view'])
                 <div class="mb-6">
                     <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[2px] mb-3" :class="sidebarCollapsed ? 'hidden' : 'block'">Master Data</p>
                     
                     @can('barang.view')
-                    <x-sidebar-dropdown title="Barang" icon="fas fa-box" :active="request()->is('barang') || request()->is('barang/*') || request()->is('kategori*') || request()->is('lokasi-barang*') || request()->is('satuan*') || request()->is('sumber-anggaran*') || request()->is('pihak-kesatu*') || request()->is('pihak-kedua*') || request()->is('bap*')">
+                    <x-sidebar-dropdown title="Barang" icon="fas fa-box" :active="request()->is('barang') || request()->is('barang/*') || request()->is('kategori*') || request()->is('satuan*') || request()->is('sumber-anggaran*') || request()->is('pihak-kesatu*') || request()->is('pihak-kedua*') || request()->is('bap*')">
                         <x-sidebar-submenu-item title="Data Barang" href="/barang" :active="request()->is('barang') || request()->is('barang/*')" />
                         @can('master.kategori')
                         <x-sidebar-submenu-item title="Kategori Barang" href="/kategori" :active="request()->is('kategori*')" />
-                        @endcan
-                        @can('master.lokasi')
-                        <x-sidebar-submenu-item title="Data Lokasi Barang" href="/lokasi-barang" :active="request()->is('lokasi-barang*')" />
                         @endcan
                         @can('master.satuan')
                         <x-sidebar-submenu-item title="Data Satuan Barang" href="/satuan" :active="request()->is('satuan*')" />
@@ -460,17 +461,12 @@
                         @endcan
                     </x-sidebar-dropdown>
                     @endcan
-
-                    @canany(['gudang.view', 'mutasi.view'])
-                    <x-sidebar-dropdown title="Gudang" icon="fas fa-warehouse" :active="request()->is('gudang*') || request()->is('mutasi-gudang*')">
-                        @can('gudang.view')
+ 
+                    @can('gudang.view')
+                    <x-sidebar-dropdown title="Gudang" icon="fas fa-warehouse" :active="request()->is('gudang*')">
                         <x-sidebar-submenu-item title="Data Gudang" href="/gudang" :active="request()->is('gudang*')" />
-                        @endcan
-                        @can('mutasi.view')
-                        <x-sidebar-submenu-item title="Mutasi Gudang" href="/mutasi-gudang" :active="request()->is('mutasi-gudang*')" />
-                        @endcan
                     </x-sidebar-dropdown>
-                    @endcanany
+                    @endcan
                 </div>
                 @endcanany
 
@@ -502,11 +498,7 @@
                 </div>
                 
                 <div class="flex items-center space-x-6">
-                    <!-- Search -->
-                    <div class="hidden lg:flex items-center bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <i class="fas fa-search text-gray-400 text-xs"></i>
-                        <input type="text" placeholder="Cari menu..." class="bg-transparent border-none focus:ring-0 text-xs text-gray-600 dark:text-gray-300 w-48 ml-2">
-                    </div>
+
 
                     <!-- Dark Mode -->
                     <button @click="darkMode = !darkMode" class="text-gray-500 hover:text-primary-600 transition-colors">

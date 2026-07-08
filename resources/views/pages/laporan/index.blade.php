@@ -11,24 +11,55 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        {{-- ══ 1. MASTER BARANG ══ --}}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between">
+        {{-- ══ 1. MASTER BARANG / PERSEDIAAN ══ --}}
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between"
+             x-data="{ open: false }">
             <div>
                 <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-xl flex items-center justify-center mb-4">
                     <i class="fas fa-boxes-stacked text-xl"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Laporan Master Barang</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Daftar semua barang yang terdaftar di sistem beserta stok saat ini.</p>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Laporan Persediaan Logistik</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Daftar mutasi persediaan barang bulanan lengkap dengan nilai rupiah.</p>
+                
+                {{-- Filter tanggal/gudang --}}
+                <div x-show="open" x-collapse class="mt-3 space-y-2 text-xs">
+                    <form id="form-barang" method="GET" class="space-y-2">
+                        <div>
+                            <label class="text-[10px] text-gray-550 dark:text-gray-450 font-bold uppercase">Gudang</label>
+                            <select name="gudang_id" class="w-full mt-1 px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="">Semua Gudang</option>
+                                @foreach(\App\Models\Warehouse::all() as $wh)
+                                    <option value="{{ $wh->id }}">{{ $wh->nama_gudang }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-550 dark:text-gray-450 font-bold uppercase">Bulan</label>
+                            <input type="month" name="month" value="{{ date('Y-m') }}"
+                                   class="w-full mt-1 px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="mt-6 flex gap-2">
-                <a href="{{ route('laporan.barang.pdf') }}"
-                   class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
-                    <i class="fas fa-file-pdf mr-1"></i> PDF
-                </a>
-                <a href="{{ route('laporan.barang.excel') }}"
-                   class="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
-                    <i class="fas fa-file-excel mr-1"></i> Excel
-                </a>
+            
+            <div class="mt-4 space-y-2">
+                <button @click="open = !open"
+                        class="w-full py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl transition-colors">
+                    <i class="fas fa-filter mr-1"></i>
+                    <span x-text="open ? 'Sembunyikan Filter' : 'Filter Laporan'"></span>
+                </button>
+                <div class="flex gap-2">
+                    <button type="button"
+                            onclick="submitForm('form-barang', '{{ route('laporan.barang.pdf') }}')"
+                            class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
+                        <i class="fas fa-file-pdf mr-1"></i> PDF
+                    </button>
+                    <button type="button"
+                            onclick="submitForm('form-barang', '{{ route('laporan.barang.excel') }}')"
+                            class="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
+                        <i class="fas fa-file-excel mr-1"></i> Excel
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -130,28 +161,8 @@
             </div>
         </div>
 
-        {{-- ══ 4. MUTASI GUDANG ══ --}}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between">
-            <div>
-                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mb-4">
-                    <i class="fas fa-shuffle text-xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Laporan Mutasi Gudang</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Daftar perpindahan stok antar lokasi gudang.</p>
-            </div>
-            <div class="mt-6 flex gap-2">
-                <a href="{{ route('laporan.mutasi.pdf') }}"
-                   class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
-                    <i class="fas fa-file-pdf mr-1"></i> PDF
-                </a>
-                <a href="{{ route('laporan.mutasi.excel') }}"
-                   class="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
-                    <i class="fas fa-file-excel mr-1"></i> Excel
-                </a>
-            </div>
-        </div>
-
-        {{-- ══ 5. STOCK OPNAME ══ --}}
+        {{-- ══ 5. STOCK OPNAME (HIDDEN) ══ --}}
+        {{--
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between">
             <div>
                 <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center mb-4">
@@ -171,32 +182,60 @@
                 </a>
             </div>
         </div>
+        --}}
 
         {{-- ══ 6. SEMUA TRANSAKSI ══ --}}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between"
+             x-data="{ open: false }">
             <div>
                 <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mb-4">
                     <i class="fas fa-list-check text-xl"></i>
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Semua Transaksi</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Export seluruh transaksi (masuk + keluar) tanpa filter jenis.</p>
+
+                {{-- Filter tanggal --}}
+                <div x-show="open" x-collapse class="mt-3 space-y-2">
+                    <form id="form-semua" method="GET" class="space-y-2">
+                        <div>
+                            <label class="text-xs text-gray-500 dark:text-gray-400 font-medium">Dari Tanggal</label>
+                            <input type="date" name="start_date"
+                                   class="w-full mt-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 dark:text-gray-400 font-medium">Sampai Tanggal</label>
+                            <input type="date" name="end_date"
+                                   class="w-full mt-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="mt-6 flex gap-2">
-                <a href="{{ route('laporan.transaksi.pdf') }}"
-                   class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
-                    <i class="fas fa-file-pdf mr-1"></i> PDF
-                </a>
-                <a href="{{ route('laporan.transaksi.excel') }}"
-                   class="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
-                    <i class="fas fa-file-excel mr-1"></i> Excel
-                </a>
+
+            <div class="mt-4 space-y-2">
+                <button @click="open = !open"
+                        class="w-full py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl transition-colors">
+                    <i class="fas fa-filter mr-1"></i>
+                    <span x-text="open ? 'Sembunyikan Filter' : 'Filter Tanggal'"></span>
+                </button>
+                <div class="flex gap-2">
+                    <button type="button"
+                            onclick="submitForm('form-semua', '{{ route('laporan.transaksi.pdf') }}')"
+                            class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
+                        <i class="fas fa-file-pdf mr-1"></i> PDF
+                    </button>
+                    <button type="button"
+                            onclick="submitForm('form-semua', '{{ route('laporan.transaksi.excel') }}')"
+                            class="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl text-center transition-colors">
+                        <i class="fas fa-file-excel mr-1"></i> Excel
+                    </button>
+                </div>
             </div>
         </div>
 
     </div>
 </div>
 
-@push('scripts')
+@section('scripts')
 <script>
 /**
  * Submit form laporan dengan action URL yang dinamis
@@ -209,5 +248,5 @@ function submitForm(formId, actionUrl) {
     form.submit();
 }
 </script>
-@endpush
+@endsection
 @endsection

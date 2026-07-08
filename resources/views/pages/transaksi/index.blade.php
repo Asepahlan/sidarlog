@@ -29,9 +29,13 @@
                         <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">No. Ref</th>
                         <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Barang</th>
                         <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Gudang</th>
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Jumlah (Kcl)</th>
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Jumlah (Bsr)</th>
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Penerima/Penyerah</th>
+                        <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Jumlah</th>
+                        @if($jenis == 'masuk')
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Penerima</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Pengirim</th>
+                        @else
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Penerima/Penyerah</th>
+                        @endif
                         <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Tanggal</th>
                         <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Aksi</th>
                     </tr>
@@ -39,14 +43,19 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse($transactions as $tx)
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
-                            <div>{{ $tx->no_referensi }}</div>
-                            @if($tx->referenceBap)
-                                <div class="text-[10px] font-normal text-gray-400 dark:text-gray-500" title="{{ $tx->referenceBap->judul_ba }}">
-                                    BAP: {{ $tx->referenceBap->nomor_ba }}
-                                </div>
-                            @endif
-                        </td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
+                             <div>{{ $tx->no_referensi }}</div>
+                             @if($tx->nomor_berita_acara)
+                                 <div class="text-[10px] font-bold text-emerald-600 dark:text-emerald-450" title="Berita Acara Serah Terima">
+                                     BAST: {{ $tx->nomor_berita_acara }}
+                                 </div>
+                             @endif
+                             @if($tx->referenceBap)
+                                 <div class="text-[10px] font-normal text-gray-400 dark:text-gray-500" title="{{ $tx->referenceBap->judul_ba }}">
+                                     BAP: {{ $tx->referenceBap->nomor_ba }}
+                                 </div>
+                             @endif
+                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                             <div class="flex items-center space-x-2">
                                 <span>{{ $tx->barang->nama_barang ?? '-' }}</span>
@@ -64,19 +73,30 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ $tx->gudang->nama_gudang ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $tx->jenis == 'masuk' ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $tx->jenis == 'masuk' ? '+' : '-' }}{{ number_format($tx->jumlah_barang_kecil) }}
+                            {{ number_format($tx->jumlah_barang_kecil) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $tx->jenis == 'masuk' ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $tx->jenis == 'masuk' ? '+' : '-' }}{{ number_format($tx->jumlah_barang_besar) }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                            {{ $tx->penerima_penyerah ?: ($tx->pihakKedua ? $tx->pihakKedua->nama_pihak : '-') }}
-                        </td>
+                        @if($tx->jenis == 'masuk')
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ $tx->penerima ? ($tx->penerima->nama_lengkap ?? $tx->penerima->name) : ($tx->pihakKesatu ? $tx->pihakKesatu->nama_pihak : '-') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ $tx->penerima_penyerah }}
+                            </td>
+                        @else
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ $tx->penerima_penyerah ?: ($tx->pihakKedua ? $tx->pihakKedua->nama_pihak : '-') }}
+                            </td>
+                        @endif
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $tx->tgl_transaksi ? $tx->tgl_transaksi->format('d/m/Y H:i') : '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-center space-x-2">
-                            <a href="{{ route('transaksi.bast', $tx->id) }}" target="_blank" class="text-primary-600 hover:text-primary-800 transition-colors" title="Cetak Berita Acara">
+                            <a href="{{ route('transaksi.bast.setup', $tx->id) }}" class="text-primary-600 hover:text-primary-800 transition-colors" title="Setup & Cetak Berita Acara">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
+                            @can('transaksi.' . $tx->jenis . '.create')
+                            <a href="{{ route('barang-' . $tx->jenis . '.edit', $tx->id) }}" class="text-amber-500 hover:text-amber-700 transition-colors" title="Edit Transaksi">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            @endcan
                             <form id="delete-form-{{ $tx->id }}" action="{{ route('barang-' . $tx->jenis . '.destroy', $tx->id) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')

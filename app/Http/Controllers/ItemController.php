@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\ItemService;
 use App\Models\Category;
 use App\Models\Unit;
-use App\Models\ItemLocation;
 use App\Models\BudgetSource;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Http\Request;
@@ -27,8 +26,9 @@ class ItemController extends Controller
 
         $items = $this->itemService->getAllItems($perPage, $search, $kategoriId);
         $categories = Category::latest()->get();
+        $warehouses = \App\Models\Warehouse::latest()->get();
 
-        return view('pages.barang.index', compact('items', 'categories', 'search', 'kategoriId'));
+        return view('pages.barang.index', compact('items', 'categories', 'warehouses', 'search', 'kategoriId'));
     }
 
     public function create()
@@ -43,15 +43,13 @@ class ItemController extends Controller
             'nama_barang'      => 'required|string|max:255',
             'kategori_id'      => 'required|exists:categories,id',
             'satuan_kecil_id'  => 'required|exists:units,id',
-            'satuan_besar_id'  => 'nullable|exists:units,id',
             'harga_satuan_kecil' => 'nullable|numeric|min:0',
-            'harga_satuan_besar' => 'nullable|numeric|min:0',
             'sumber_anggaran_id' => 'nullable|exists:budget_sources,id',
-            'lokasi_barang_id' => 'nullable|exists:item_locations,id',
+            'gudang_id'        => 'nullable|exists:warehouses,id',
+            'stok_saat_ini_kecil' => 'nullable|integer|min:0',
             'stok_minimal'     => 'required|integer|min:0',
             'deskripsi'        => 'nullable|string',
             'tgl_kadaluarsa'   => 'nullable|date',
-            'tgl_diterima'     => 'nullable|date',
         ]);
 
         try {
@@ -81,15 +79,12 @@ class ItemController extends Controller
             'nama_barang'      => 'required|string|max:255',
             'kategori_id'      => 'required|exists:categories,id',
             'satuan_kecil_id'  => 'required|exists:units,id',
-            'satuan_besar_id'  => 'nullable|exists:units,id',
             'harga_satuan_kecil' => 'nullable|numeric|min:0',
-            'harga_satuan_besar' => 'nullable|numeric|min:0',
             'sumber_anggaran_id' => 'nullable|exists:budget_sources,id',
-            'lokasi_barang_id' => 'nullable|exists:item_locations,id',
+            'gudang_id'        => 'nullable|exists:warehouses,id',
             'stok_minimal'     => 'required|integer|min:0',
             'deskripsi'        => 'nullable|string',
             'tgl_kadaluarsa'   => 'nullable|date',
-            'tgl_diterima'     => 'nullable|date',
         ]);
 
         try {

@@ -56,8 +56,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:barang.delete');
 
     // ── MASTER DATA ─────────────────────────────────────────────────
-    Route::resource('lokasi-barang', \App\Http\Controllers\ItemLocationController::class)
-        ->middleware('permission:master.lokasi');
+    // Route::resource('lokasi-barang', \App\Http\Controllers\ItemLocationController::class)
+    //     ->middleware('permission:master.lokasi');
     Route::resource('pihak-kesatu', \App\Http\Controllers\FirstPartyController::class)
         ->middleware('permission:master.pihak-kesatu');
     Route::resource('pihak-kedua', \App\Http\Controllers\SecondPartyController::class)
@@ -73,9 +73,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('satuan', \App\Http\Controllers\UnitController::class)
         ->middleware('permission:master.satuan');
 
-    // ── MUTASI GUDANG ───────────────────────────────────────────────
-    Route::resource('mutasi-gudang', \App\Http\Controllers\StockMutationController::class)
-        ->middleware('permission:mutasi.view');
 
     // ── INVENTORY: BARANG MASUK ─────────────────────────────────────
     Route::get('/barang-masuk', [\App\Http\Controllers\StockTransactionController::class, 'index'])->name('barang-masuk.index')
@@ -85,6 +82,11 @@ Route::middleware('auth')->group(function () {
         ->defaults('jenis', 'masuk')
         ->middleware('permission:transaksi.masuk.create');
     Route::post('/barang-masuk', [\App\Http\Controllers\StockTransactionController::class, 'store'])->name('barang-masuk.store')
+        ->middleware('permission:transaksi.masuk.create');
+    Route::get('/barang-masuk/{id}/edit', [\App\Http\Controllers\StockTransactionController::class, 'edit'])->name('barang-masuk.edit')
+        ->defaults('jenis', 'masuk')
+        ->middleware('permission:transaksi.masuk.create');
+    Route::put('/barang-masuk/{id}', [\App\Http\Controllers\StockTransactionController::class, 'update'])->name('barang-masuk.update')
         ->middleware('permission:transaksi.masuk.create');
     Route::delete('/barang-masuk/{id}', [\App\Http\Controllers\StockTransactionController::class, 'destroy'])->name('barang-masuk.destroy')
         ->middleware('permission:transaksi.delete');
@@ -98,9 +100,18 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:transaksi.keluar.create');
     Route::post('/barang-keluar', [\App\Http\Controllers\StockTransactionController::class, 'store'])->name('barang-keluar.store')
         ->middleware('permission:transaksi.keluar.create');
+    Route::get('/barang-keluar/{id}/edit', [\App\Http\Controllers\StockTransactionController::class, 'edit'])->name('barang-keluar.edit')
+        ->defaults('jenis', 'keluar')
+        ->middleware('permission:transaksi.keluar.create');
+    Route::put('/barang-keluar/{id}', [\App\Http\Controllers\StockTransactionController::class, 'update'])->name('barang-keluar.update')
+        ->middleware('permission:transaksi.keluar.create');
     Route::delete('/barang-keluar/{id}', [\App\Http\Controllers\StockTransactionController::class, 'destroy'])->name('barang-keluar.destroy')
         ->middleware('permission:transaksi.delete');
 
+    Route::get('/transaksi/{id}/bast/setup', [\App\Http\Controllers\StockTransactionController::class, 'setupBast'])->name('transaksi.bast.setup')
+        ->middleware('permission:laporan.export');
+    Route::post('/transaksi/{id}/bast/setup', [\App\Http\Controllers\StockTransactionController::class, 'saveAndPrintBast'])->name('transaksi.bast.save')
+        ->middleware('permission:laporan.export');
     Route::get('/transaksi/{id}/bast', [\App\Http\Controllers\StockTransactionController::class, 'printBast'])->name('transaksi.bast')
         ->middleware('permission:laporan.export');
 
@@ -109,6 +120,12 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:opname.view');
     Route::post('/stock-opname', [\App\Http\Controllers\StockOpnameController::class, 'store'])->name('stock-opname.store')
         ->middleware('permission:opname.create');
+    Route::post('/stock-opname/save-batch', [\App\Http\Controllers\StockOpnameController::class, 'saveBatch'])->name('stock-opname.save-batch')
+        ->middleware('permission:opname.create');
+    Route::get('/stock-opname/print', [\App\Http\Controllers\StockOpnameController::class, 'printReport'])->name('stock-opname.print')
+        ->middleware('permission:laporan.export');
+    Route::get('/stock-opname/excel', [\App\Http\Controllers\StockOpnameController::class, 'exportExcel'])->name('stock-opname.excel')
+        ->middleware('permission:laporan.export');
 
     // ── REPORTS & EXPORT ────────────────────────────────────────────
     Route::get('/laporan', [\App\Http\Controllers\ReportController::class, 'index'])->name('laporan.index')
@@ -124,10 +141,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/opname/excel', [\App\Http\Controllers\ReportController::class, 'exportOpnameExcel'])->name('laporan.opname.excel')
         ->middleware('permission:laporan.export');
     Route::get('/laporan/opname/pdf', [\App\Http\Controllers\ReportController::class, 'exportOpnamePdf'])->name('laporan.opname.pdf')
-        ->middleware('permission:laporan.export');
-    Route::get('/laporan/mutasi/excel', [\App\Http\Controllers\ReportController::class, 'exportMutasiExcel'])->name('laporan.mutasi.excel')
-        ->middleware('permission:laporan.export');
-    Route::get('/laporan/mutasi/pdf', [\App\Http\Controllers\ReportController::class, 'exportMutasiPdf'])->name('laporan.mutasi.pdf')
         ->middleware('permission:laporan.export');
 
     // ── SISTEM: USER & ROLE MANAGEMENT ──────────────────────────────
